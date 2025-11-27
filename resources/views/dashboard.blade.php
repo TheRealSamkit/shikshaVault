@@ -1,17 +1,82 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight h2">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+@section('content')
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>📚 Community Notes</h2>
+                    <a href="{{ route('upload.create') }}" class="btn btn-primary">
+                        Upload New File 📤
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recent Uploads</div>
+
+                    <div class="card-body">
+                        @if($files->count() > 0)
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($files as $file)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $file->title }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ Str::limit($file->description, 30) }}</small>
+                                            </td>
+                                            <td>{{ $file->user->username }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ $file->file_type }}</span>
+                                            </td>
+                                            <td>{{ number_format($file->file_size / 1024, 2) }} KB</td>
+                                            <td>{{ $file->upload_date->diffForHumans() }}</td>
+                                            <td>
+                                                @php
+                                                    // Small logic check for button style (Optional but nice UI)
+                                                    $isOwner = $file->user_id === auth()->id();
+                                                    // Ideally we pass this from controller, but for now this works:
+                                                    $hasBought = \App\Models\Download::where('user_id', auth()->id())
+                                                        ->where('file_id', $file->id)->exists();
+                                                @endphp<a href="{{ route('file.download', $file->slug) }}"
+                                                    class="btn btn-sm {{ ($isOwner || $hasBought) ? 'btn-success' : 'btn-warning' }}">
+
+                                                    @if($isOwner)
+                                                        Download ⬇️
+                                                    @elseif($hasBought)
+                                                        Re-Download 🔄
+                                                    @else
+                                                        Buy (1 Token) 🪙
+                                                    @endif
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-center">
+                                {{ $files->links() }}
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <h4>No files found 😢</h4>
+                                <p>Be the first to upload something!</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

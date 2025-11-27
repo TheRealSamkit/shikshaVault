@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Download extends Model
+{
+    use HasFactory;
+    public $timestamps = false;
+    const CREATED_AT = 'downloaded_at';
+    protected $fillable = ['user_id', 'file_id', 'ip_address'];
+}
