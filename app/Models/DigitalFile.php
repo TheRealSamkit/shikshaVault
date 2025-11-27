@@ -44,5 +44,15 @@ class DigitalFile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }// Existing user() relation...
+
+    public function institution()
+    {
+        return $this->belongsTo(\App\Models\Institution::class);
+    }
+
+    public function subject()
+    {
+        return $this->belongsTo(\App\Models\Subject::class);
     }
 }

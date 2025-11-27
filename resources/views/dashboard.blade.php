@@ -10,6 +10,43 @@
                         Upload New File 📤
                     </a>
                 </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form action="{{ route('dashboard') }}" method="GET" class="row g-3">
+
+                            <div class="col-md-4">
+                                <input type="text" name="search" class="form-control" placeholder="Search notes..."
+                                    value="{{ request('search') }}">
+                            </div>
+
+                            <div class="col-md-3">
+                                <select name="institution_id" class="form-select">
+                                    <option value="">All Colleges</option>
+                                    @foreach($institutions as $id => $name)
+                                        <option value="{{ $id }}" {{ request('institution_id') == $id ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <select name="subject_id" class="form-select">
+                                    <option value="">All Subjects</option>
+                                    @foreach($subjects as $id => $name)
+                                        <option value="{{ $id }}" {{ request('subject_id') == $id ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Filter 🔍</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="card">
                     <div class="card-header">Recent Uploads</div>
@@ -22,6 +59,7 @@
                                         <th>Title</th>
                                         <th>Author</th>
                                         <th>Type</th>
+                                        <th>Category</th>
                                         <th>Size</th>
                                         <th>Date</th>
                                         <th>Action</th>
@@ -38,6 +76,12 @@
                                             <td>{{ $file->user->username }}</td>
                                             <td>
                                                 <span class="badge bg-secondary">{{ $file->file_type }}</span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-info text-dark">{{ optional($file->institution)->name ?? 'General' }}</span>
+                                                <br>
+                                                <small>{{ optional($file->subject)->name }}</small>
                                             </td>
                                             <td>{{ number_format($file->file_size / 1024, 2) }} KB</td>
                                             <td>{{ $file->upload_date->diffForHumans() }}</td>

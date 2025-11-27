@@ -22,10 +22,27 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        $files = DigitalFile::with('user')->latest()->paginate('10');
+        $query = DigitalFile::with(['user', 'institution', 'subject']);
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $term = $request->search;
+            $q->where(function ($subQuery) use ($term) {
+                $subQuery->where('title', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%");
+            });
+        });
+        $query->when($request->filled('institution_id'), function ($q) use ($request) {
+            $q->where('institution_id', $request->institution_id);
+        });
+        $query->when($request->filled('subject_id'), function ($q) use ($request) {
+            $q->where('subject_id', $request->subject_id);
+        });
 
-        return view('dashboard', compact('files'));
+        $files = $query->latest()->paginate(10)->withQueryString();
+        $institutions = \Illuminate\Support\Facades\DB::table('institutions')->pluck('name', 'id');
+        $subjects = \Illuminate\Support\Facades\DB::table('subjects')->pluck('name', 'id');
+
+        return view('dashboard', compact('files', 'institutions', 'subjects'));
     }
 }

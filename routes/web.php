@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upload', [App\Http\Controllers\FileUploadController::class, 'store'])->name('upload.store');
     Route::get('/download/{slug}', [App\Http\Controllers\DownloadController::class, 'download'])
         ->name('file.download');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
