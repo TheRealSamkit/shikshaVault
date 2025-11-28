@@ -92,7 +92,8 @@
                                                     // Ideally we pass this from controller, but for now this works:
                                                     $hasBought = \App\Models\Download::where('user_id', auth()->id())
                                                         ->where('file_id', $file->id)->exists();
-                                                @endphp<a href="{{ route('file.download', $file->slug) }}"
+                                                @endphp
+                                                <a href="{{ route('file.download', $file->slug) }}"
                                                     class="btn btn-sm {{ ($isOwner || $hasBought) ? 'btn-success' : 'btn-warning' }}">
 
                                                     @if($isOwner)
@@ -103,6 +104,16 @@
                                                         Buy (1 Token) 🪙
                                                     @endif
                                                 </a>
+                                                @if(Auth::id() === $file->user_id)
+                                                    <form action="{{ route('file.destroy', $file->id) }}" method="POST"
+                                                        onsubmit="return confirm('Are you sure? This cannot be undone.');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            🗑️
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

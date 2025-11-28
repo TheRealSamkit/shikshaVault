@@ -42,6 +42,18 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
+        if ($user->status === 'blocked') {
+            \Illuminate\Support\Facades\Auth::logout();
+
+            // Invalidate the session (Security best practice)
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Send them back to login with an error message
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been suspended. Please contact support.',
+            ]);
+        }
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }

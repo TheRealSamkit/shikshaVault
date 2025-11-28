@@ -74,6 +74,29 @@ class FileUploadController extends Controller
             'visibility' => 'public',
         ]);
 
+
         return redirect()->route('dashboard')->with('success', 'File uploaded successfully!');
+    }
+    public function destroy($id)
+    {
+        // 1. Find the file
+        $file = DigitalFile::findOrFail($id);
+
+        // 2. SECURITY CHECK: Is this MY file?
+        // We don't want User A deleting User B's files!
+        if (Auth::id() !== $file->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 3. Delete Physical File from Storage (Clean up disk space)
+        // We use the 'local' disk and the path we saved earlier
+        if (Storage::disk('local')->exists($file->file_path)) {
+            Storage::disk('local')->delete($file->file_path);
+        }
+
+        // 4. Delete Database Record
+        $file->delete();
+
+        return back()->with('success', 'File deleted successfully.');
     }
 }
