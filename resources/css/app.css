@@ -1,1 +1,80 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
+/* 1. Import Tabler Core (Includes Bootstrap 5 inside it) */
+@import url("../../node_modules/@tabler/core/dist/css/tabler.min.css");
+@import url("../../node_modules/@tabler/core/dist/css/tabler-flags.min.css");
+@import url("../../node_modules/@tabler/core/dist/css/tabler-payments.min.css");
+@import url("../../node_modules/@tabler/core/dist/css/tabler-vendors.min.css");
+
+/* 2. Import Tabler Icons */
+@import url("../../node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css");
+
+/* 3. Custom SweetAlert "Pro" Styling */
+.colored-toast.swal2-icon-success {
+	box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+}
+.colored-toast.swal2-icon-error {
+	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+}
+.colored-toast {
+	border-radius: 4px !important;
+	padding: 10px 15px !important;
+	background-color: #fff !important; /* Ensure visibility */
+}
+/* Import Bootstrap Icons (or use CDN in layout) */
+
+/* 1. LAYOUT CONTAINER */
+.dashboard-container {
+	display: flex;
+	min-height: 100vh;
+	overflow: hidden;
+}
+
+/* 2. SIDEBAR (Desktop) */
+.sidebar {
+	width: 240px;
+	flex-shrink: 0;
+	background-color: var(--tblr-bg-surface); /* Dark Sidebar */
+	color: white;
+	display: flex;
+	flex-direction: column;
+	transition: margin-left 0.3s;
+}
+
+.sidebar .nav-link {
+	padding: 12px 20px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.sidebar .nav-link:hover {
+	color: var(--tblr-secondary);
+	background-color: color-mix(
+		in srgb,
+		var(--tblr-nav-link-color) 7%,
+		transparent
+	);
+}
+
+.sidebar .nav-link.active {
+	color: var(--tblr-secondary);
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* 3. MAIN CONTENT */
+.main-content {
+	flex-grow: 1;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+/* 4. RESPONSIVE (Mobile) */
+@media (max-width: 991.98px) {
+	.sidebar.desktop-sidebar {
+		display: none;
+	}
+}
+
+html {
+	margin-left: 0 !important;
+}
