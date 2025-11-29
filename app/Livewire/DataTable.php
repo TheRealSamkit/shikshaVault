@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
+use Illuminate\Support\Str; // Import Str for checking dot notation
 
 use function Laravel\Prompts\info;
 
@@ -13,24 +14,21 @@ class DataTable extends Component
 {
     use WithPagination;
 
-    // Configuration passed from parent
-    public $model;          // e.g., 'App\Models\Subject'
-    public $columns = [];   // e.g., [['key' => 'name', 'label' => 'Name']]
+    public $model;
+    public $columns = [];
     public $title = 'Data';
 
+    // 1. ADD THIS: Property to accept relationships
+    public $with = [];
+    public $inputSize = 'sm';
     public $test;
-
-    // State
     public $search = '';
     public $perPage = 10;
     public $sortField = 'id';
     public $sortDirection = 'desc';
 
-    protected $listeners = [
-        'destroy-item' => 'destroy'
-    ];
+    protected $listeners = ['destroy-item' => 'destroy'];
 
-    // Reset pagination when searching
     public function updatedSearch()
     {
         $this->resetPage();
@@ -61,26 +59,42 @@ class DataTable extends Component
         $realClass::find($id)->delete();
     }
 
-
     public function render()
     {
-        // 1. Initialize Query
         $query = $this->model::query();
 
-        // 2. Handle Search
+        // 2. ADD THIS: Eager load relationships to optimize performance
+        if (!empty($this->with)) {
+            $query->with($this->with);
+        }
+
+        // 3. UPDATE THIS: Search Logic for Relationships
         if ($this->search) {
             $query->where(function (Builder $q) {
                 foreach ($this->columns as $column) {
-                    // Only search fields that exist in the DB (you might need a 'searchable' flag in robust apps)
-                    $q->orWhere($column['key'], 'like', '%' . $this->search . '%');
+                    $key = $column['key'];
+
+                    // Check if the key contains a dot (e.g., 'department.name')
+                    if (Str::contains($key, '.')) {
+                        // Split relation and field (e.g., relation='department', field='name')
+                        $parts = explode('.', $key);
+                        $relation = array_shift($parts); // Get the first part
+                        $field = implode('.', $parts);   // Rejoin the rest in case of deep nesting
+
+                        // Use orWhereHas to search inside the related table
+                        $q->orWhereHas($relation, function ($subQuery) use ($field) {
+                            $subQuery->where($field, 'like', '%' . $this->search . '%');
+                        });
+                    } else {
+                        // Standard search for direct columns
+                        $q->orWhere($key, 'like', '%' . $this->search . '%');
+                    }
                 }
             });
         }
 
-        // 3. Handle Sorting
         $query->orderBy($this->sortField, $this->sortDirection);
 
-        // 4. Fetch Data
         $items = $query->paginate($this->perPage);
 
         return view('livewire.data-table', [

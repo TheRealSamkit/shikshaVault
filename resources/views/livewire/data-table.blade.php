@@ -3,8 +3,8 @@
         <div class="card-header mb-0 justify-content-between">
             <div class="card-title">{{ $title }}</div>
             <div class="wrapper d-flex">
-                <input type="text" wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
-                    placeholder="Search {{ $title }}..">
+                <input type="text" wire:model.live.debounce.300ms="search"
+                    class="form-control form-control-{{$inputSize}}" placeholder="Search {{ $title }}..">
 
                 <a href="#" wire:click.prevent="$dispatch('create-{{ Str::kebab($title) }}')"
                     class="btn btn-action p-0">
@@ -50,7 +50,7 @@
                                 <td class="text-center align-middle">{{ $item->id }}</td>
 
                                 @foreach($columns as $col)
-                                    <td class="align-middle">{{ $item->{$col['key']} }}</td>
+                                    <td class="align-middle">{{ data_get($item, $col['key']) }}</td>
                                 @endforeach
 
                                 <td>
