@@ -13,29 +13,6 @@
             ['key' => 'slug', 'label' => 'Slug']
         ]" />
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Click me</button>
-        <div class="modal modal-blur fade" id="modal-danger" tabindex="-1" wire:ignore.self>
-            <a href="#" class="btn btn-danger w-100" wire:click.prevent="destroy">
-                Delete
-            </a>
-        </div>
+
     </div>
-@endsection
-
-@section('scripts')
-    <script>
-        // document.addEventListener('livewire:initialized', () => {
-        //     Livewire.on('open-delete-modal', () => {
-        //         const modalEl = document.getElementById('modal-danger');
-        //         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        //         modal.show();
-        //     });
-
-        //     Livewire.on('close-delete-modal', () => {
-        //         const modalEl = document.getElementById('modal-danger');
-        //         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        //         modal.hide();
-        //     });
-        // });
-    </script>
 @endsection

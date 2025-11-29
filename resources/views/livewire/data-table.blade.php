@@ -80,7 +80,7 @@
                                                 Edit
                                             </a>
                                             <a class="dropdown-item" href="#"
-                                                wire:click.prevent="$dispatch('confirm-delete', { id: {{ $item->id }}, model: '{{ addslashes($model) }}' })">
+                                                wire:click.prevent="$dispatch('confirm-delete', { id: {{ $item->id }}, model: '{{ $title }}' })">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                     stroke-linecap="round" stroke-linejoin="round"
@@ -108,3 +108,31 @@
     </div>
 
 </div>
+
+@script
+<script>
+    $wire.on('confirm-delete', (event) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            theme: 'auto',
+            reverseButtons: true,
+            focusConfirm: true,
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'btn btn-danger mx-2 fs-2',
+                cancelButton: 'btn btn-default mx-2 fs-2'
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $wire.dispatch("destroy-item", { id: event.id, model: event.model });
+            }
+        });
+    });
+</script>
+@endscript

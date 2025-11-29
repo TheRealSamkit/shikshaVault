@@ -25,23 +25,6 @@ class Curriculum extends Component
     }
 
     // 4. The actual delete logic
-    public function destroy()
-    {
-        $allowedModels = ['App\Models\Subject', 'App\Models\AcademicFields'];
-
-        if (in_array($this->deleteModel, $allowedModels) && $this->deleteId) {
-            $record = $this->deleteModel::find($this->deleteId);
-            if ($record) {
-                $record->delete();
-            }
-        }
-
-        $this->reset(['deleteId', 'deleteModel']);
-        $this->dispatch('close-delete-modal');
-
-        // Optional: Refresh the child tables so the deleted row disappears
-        $this->dispatch('refresh-datatable');
-    }
 
     public function render()
     {

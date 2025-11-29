@@ -5,6 +5,9 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+
+use function Laravel\Prompts\info;
 
 class DataTable extends Component
 {
@@ -23,21 +26,41 @@ class DataTable extends Component
     public $sortField = 'id';
     public $sortDirection = 'desc';
 
+    protected $listeners = [
+        'destroy-item' => 'destroy'
+    ];
+
     // Reset pagination when searching
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
-    // Generic Delete Action
-    public function delete($id)
+    public function destroy($id, $model)
     {
-        $record = $this->model::find($id);
-        if ($record) {
-            $record->delete();
-            // Optional: Dispatch a success notification here
+        // Map the aliases to the real classes
+        info("Destroy called with id: $id and model: $model");
+        if ($this->title !== $model) {
+            return;
         }
+        info("Destroy executed for table: {$this->title}");
+
+        $map = [
+            'Subjects' => \App\Models\Subject::class,
+            'Academic Fields' => \App\Models\AcademicFields::class,
+        ];
+
+        // Check if key exists
+        if (!array_key_exists($model, $map)) {
+            abort(403);
+        }
+
+        // Get the real class from the map
+        $realClass = $map[$model];
+
+        $realClass::find($id)->delete();
     }
+
 
     public function render()
     {

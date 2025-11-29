@@ -11,9 +11,6 @@ class CurriculumController extends Controller
     //
     public function index()
     {
-
-        $subjects = DB::table(table: 'subjects')->pluck('name', 'id');
-
         return view('admin.curriculum');
     }
 }

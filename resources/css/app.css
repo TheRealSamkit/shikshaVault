@@ -7,7 +7,14 @@
 /* 2. Import Tabler Icons */
 @import url("../../node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css");
 
-/* 3. Custom SweetAlert "Pro" Styling */
+html {
+	margin-left: 0 !important;
+}
+
+.swal-popup {
+	background-color: var(--tblr-bg-surface) !important;
+}
+
 .colored-toast.swal2-icon-success {
 	box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
 }
@@ -17,18 +24,15 @@
 .colored-toast {
 	border-radius: 4px !important;
 	padding: 10px 15px !important;
-	background-color: #fff !important; /* Ensure visibility */
+	background-color: #fff !important;
 }
-/* Import Bootstrap Icons (or use CDN in layout) */
 
-/* 1. LAYOUT CONTAINER */
 .dashboard-container {
 	display: flex;
 	min-height: 100vh;
 	overflow: hidden;
 }
 
-/* 2. SIDEBAR (Desktop) */
 .sidebar {
 	width: 240px;
 	flex-shrink: 0;
@@ -64,7 +68,6 @@
 	display: none;
 }
 
-/* 3. MAIN CONTENT */
 .main-content {
 	flex-grow: 1;
 	overflow-y: auto;
@@ -72,13 +75,8 @@
 	flex-direction: column;
 }
 
-/* 4. RESPONSIVE (Mobile) */
 @media (max-width: 991.98px) {
 	.sidebar.desktop-sidebar {
 		display: none;
 	}
-}
-
-html {
-	margin-left: 0 !important;
 }

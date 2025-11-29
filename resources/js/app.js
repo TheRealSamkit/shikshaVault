@@ -40,3 +40,15 @@ window.showToast = (type, message) => {
 		color: "#fff",
 	});
 };
+
+window.showAlert = (type, title, message) => {
+	if (title || message || type) return;
+	switch (type) {
+		case "success":
+	}
+	Swal.fire({
+		icon: type,
+		title: title,
+		text: message,
+	});
+};
