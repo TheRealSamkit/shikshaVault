@@ -80,7 +80,7 @@
                                                 Edit
                                             </a>
                                             <a class="dropdown-item" href="#"
-                                                wire:click.prevent="$dispatch('delete-item', { id: {{ $item->id }} })">
+                                                wire:click.prevent="$dispatch('confirm-delete', { id: {{ $item->id }}, model: '{{ addslashes($model) }}' })">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                     stroke-linecap="round" stroke-linejoin="round"

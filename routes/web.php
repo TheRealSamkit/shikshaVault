@@ -46,11 +46,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'index'])
         ->name('admin.dashboard');
 
-    // Route::get('/admin/curriculum', [App\Livewire\Curriculum::class, 'render'])
-    //     ->name('admin.curriculum'); not being used anymore
-    Route::get('/admin/curriculum', function () {
-        return view('admin.curriculum');
-    })->name('admin.curriculum');
+    Route::get('/admin/curriculum', [App\Livewire\Curriculum::class, 'render'])
+        ->name('admin.curriculum');
 
     Route::post('/user/{id}/toggle', [App\Http\Controllers\AdminController::class, 'toggleUserStatus'])
         ->name('admin.user.toggle');

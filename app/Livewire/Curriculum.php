@@ -3,34 +3,50 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\WithPagination;
-use App\Models\Subject;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 
+// 1. Extend 'Component', NOT 'Controller'
+#[Title('Curriculum Manager')]
 class Curriculum extends Component
 {
-    use WithPagination;
+    public $deleteId = null;
+    public $deleteModel = null;
 
-    public $find_subject = '';
-
-    // FIX 1: The function name must match "updated" + "PropertyName" (CamelCase)
-    public function updatedFindSubject()
+    // 2. Listen for the event dispatched by the child DataTable
+    #[On('confirm-delete')]
+    public function setDeleteData($id, $model)
     {
-        // FIX 2: Reset the specific page name ('subjects'), not the default 'page'
-        $this->resetPage('subjects');
+        $this->deleteId = $id;
+        $this->deleteModel = $model;
+
+        // 3. Dispatch event to browser to open the modal
+        $this->dispatch('open-delete-modal');
+    }
+
+    // 4. The actual delete logic
+    public function destroy()
+    {
+        $allowedModels = ['App\Models\Subject', 'App\Models\AcademicFields'];
+
+        if (in_array($this->deleteModel, $allowedModels) && $this->deleteId) {
+            $record = $this->deleteModel::find($this->deleteId);
+            if ($record) {
+                $record->delete();
+            }
+        }
+
+        $this->reset(['deleteId', 'deleteModel']);
+        $this->dispatch('close-delete-modal');
+
+        // Optional: Refresh the child tables so the deleted row disappears
+        $this->dispatch('refresh-datatable');
     }
 
     public function render()
     {
-        // FIX 3: Start the query builder first
-        $query = Subject::query();
-
-        // FIX 4: Apply the search condition if it exists
-        if ($this->find_subject) {
-            $query->where('name', 'like', '%' . $this->find_subject . '%');
-        }
-
-        return view('livewire.curriculum', [
-            'subjects' => $query->paginate(10, ['*'], 'subjects')
-        ]);
+        // 5. Point this to your existing blade view
+        // Ensure your view is at resources/views/curriculum.blade.php
+        return view('admin.curriculum');
     }
 }
