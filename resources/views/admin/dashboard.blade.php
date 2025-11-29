@@ -1,88 +1,98 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">🛡️ Admin Control Center</h2>
-
-        <div class="row text-center mb-4">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white">
+    <div class="col-12">
+        <div class="row row-cards">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card card-sm">
                     <div class="card-body">
-                        <h3>{{ $totalUsers }}</h3>
-                        <p>Total Users</p>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span class="bg-primary text-white avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-users">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                    </svg></span>
+                            </div>
+                            <div class="col">
+                                <div class="font-weight-medium">{{ $totalUsers }}</div>
+                                <!-- <div class="text-secondary">12 waiting payments</div> -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-success text-white">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card card-sm">
                     <div class="card-body">
-                        <h3>{{ $totalFiles }}</h3>
-                        <p>Files Uploaded</p>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span class="bg-green text-white avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-file-upload">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        <path d="M12 11v6" />
+                                        <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
+                                    </svg></span>
+                            </div>
+                            <div class="col">
+                                <div class="font-weight-medium">{{ $totalFiles }}</div>
+                                <!-- <div class="text-secondary">32 shipped</div> -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-warning text-dark">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card card-sm">
                     <div class="card-body">
-                        <h3>{{ $totalTokens }} 🪙</h3>
-                        <p>Economy Size</p>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span
+                                    class="bg-warning text-white avatar"><!-- Download SVG icon from http://tabler.io/icons/icon/brand-x -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-coin-rupee">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                        <path d="M15 8h-6h1a3 3 0 0 1 0 6h-1l3 3" />
+                                        <path d="M9 11h6" />
+                                    </svg></span>
+                            </div>
+                            <div class="col">
+                                <div class="font-weight-medium">{{ $totalTokens }}</div>
+                                <!-- <div class="text-secondary">16 today</div> -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                Recent Uploads (Moderation Queue)
-            </div>
-            <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Uploader</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentUploads as $file)
-                            <tr>
-                                <td>
-                                    <a href="{{ route('file.download', $file->slug) }}" target="_blank">
-                                        {{ $file->title }}
-                                    </a>
-                                </td>
-                                <td>
-                                    {{ $file->user->username }}
-                                    <form action="{{ route('admin.user.toggle', $file->user_id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Are you sure you want to ban/unban this user?')">
-                                            🚫
-                                        </button>
-                                    </form>
-                                </td>
-                                <td>{{ $file->upload_date->diffForHumans() }}</td>
-                                <td>
-                                    <span class="badge bg-success">{{ $file->status }}</span>
-                                </td>
-                                <td>
-                                    <form action="{{ route('admin.file.delete', $file->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Permanently delete this file?')">
-                                            Delete 🗑️
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card card-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span class="bg-facebook text-white avatar">
+                                </span>
+                            </div>
+                            <div class="col">
+                                <div class="font-weight-medium">0</div>
+                                <!-- <div class="text-secondary">21 today</div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

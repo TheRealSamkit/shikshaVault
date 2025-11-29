@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="page-header mt-0 mb-4">
-        <div class="container-xl">
+        <div class="container-fluid">
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">Upload Study Material</h2>

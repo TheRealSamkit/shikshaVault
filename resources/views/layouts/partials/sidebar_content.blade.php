@@ -1,10 +1,44 @@
 <div class="d-flex flex-column h-100">
-    <a href="/" class="d-sm-none d-md-flex align-items-center mb-3 mb-md-0 text-body text-decoration-none">
+    <a href="/" class="d-none d-md-flex align-items-center mb-3 mb-md-0 text-body text-decoration-none">
         <span class="fs-1 fw-bold my-3 mx-auto">ShikshaVault</span>
     </a>
 
     <ul class="nav nav-pills flex-column p-2">
+        @if(auth()->check() && auth()->user()->role === 'admin')
+            <div class="small text-uppercase text-white-50 mb-2 px-3">Admin</div>
+            <li>
+                <a href="{{ route('admin.dashboard') }}"
+                    class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" wire:navigate>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-user-shield">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h2" />
+                        <path d="M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z" />
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.curriculum') }}"
+                    class="nav-link {{ request()->routeIs('admin.curriculum') ? 'active' : '' }}" wire:navigate>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-notebook">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18" />
+                        <path d="M13 8l2 0" />
+                        <path d="M13 12l2 0" />
+                    </svg>
+                    Curriculum Management
+                </a>
+            </li>
 
+            <hr class="my-4">
+            <div class="small text-uppercase text-white-50 mb-2 px-3">System</div>
+
+        @endif
         <li class="nav-item">
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                 wire:navigate>
@@ -37,30 +71,6 @@
 
         <li>
             <a href="{{ route('profile.show') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
-                wire:navigate><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-user">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                </svg>
-                My Profile
-            </a>
-        </li>
-
-        @if(auth()->check() && auth()->user()->role === 'admin')
-            <hr class="text-secondary">
-            <div class="small text-uppercase text-white-50 mb-2 px-3">Admin</div>
-            <li>
-                <a href="{{ route('admin.dashboard') }}"
-                    class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" wire:navigate>
-                    <i class="bi bi-shield-lock"></i>
-                    Admin Panel
-                </a>
-            </li>
-        @endif
-        <li class=" mt-auto">
-            <a href="{{ route('profile.show') }}" class="nav-link{{ request()->routeIs('profile.*') ? 'active' : '' }}"
                 wire:navigate><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-user">

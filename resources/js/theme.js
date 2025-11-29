@@ -2,7 +2,7 @@
 	"use strict";
 
 	const themeConfig = {
-		"theme-base": "gray",
+		"theme-base": "neutral",
 		"theme-font": "sans-serif",
 		"theme-primary": "blue",
 		"theme-radius": "1",

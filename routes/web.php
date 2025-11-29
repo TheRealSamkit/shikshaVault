@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -46,6 +46,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'index'])
         ->name('admin.dashboard');
 
+    Route::get('/admin/curriculum', [App\Http\Controllers\CurriculumController::class, 'index'])
+        ->name('admin.curriculum');
 
     Route::post('/user/{id}/toggle', [App\Http\Controllers\AdminController::class, 'toggleUserStatus'])
         ->name('admin.user.toggle');

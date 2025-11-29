@@ -60,6 +60,10 @@
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
+.action::after {
+	display: none;
+}
+
 /* 3. MAIN CONTENT */
 .main-content {
 	flex-grow: 1;
