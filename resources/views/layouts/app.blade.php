@@ -39,55 +39,23 @@
 
             <div class="main-content">
 
-                <nav class="navbar navbar-expand-lg navbar-light  border-bottom px-4">
-                    <div class="d-flex align-items-center w-100">
-                        <button class="btn d-lg-none me-3 p-0 border-0 shadow-none" type="button"
-                            data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                            <i class="ti ti-menu-2 fs-1"></i></button>
-                        <h5 class="mb-0 me-auto">
-                            @yield('title', 'Dashboard')
-                        </h5>
+                @include('layouts.partials.header')
 
-                        <div class="dropdown">
-                            <a href="#"
-                                class="d-flex align-items-center link-secondary text-decoration-none dropdown-toggle"
-                                data-bs-toggle="dropdown">
-                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
-                                    style="width: 32px; height: 32px;">
-                                    {{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}
-                                </div>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-                                <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        Sign out
-                                    </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf</form>
-                                </li>
-                            </ul>
-                        </div>
+                <div class="p-3">
+                    <div class="page-wrapper">
+                        @if(session('success'))
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => window.showToast('success', "{{ session('success') }}"));
+                            </script>
+                        @endif
+                        @if(session('error'))
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => window.showToast('error', "{{ session('error') }}"));
+                            </script>
+                        @endif
+
+                        @yield('content')
                     </div>
-                </nav>
-
-                <div class="p-1">
-                    @if(session('success'))
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => window.showToast('success', "{{ session('success') }}"));
-                        </script>
-                    @endif
-                    @if(session('error'))
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => window.showToast('error', "{{ session('error') }}"));
-                        </script>
-                    @endif
-
-                    @yield('content')
                 </div>
 
                 <!-- FOOTER -->

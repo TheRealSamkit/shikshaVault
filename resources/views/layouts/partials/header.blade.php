@@ -1,42 +1,46 @@
-<header class="navbar navbar-expand-md d-none d-lg-flex d-print-none">
-    <div class="container-xl">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
-            aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-nav flex-row order-md-last">
-            <div class="d-none d-md-flex">
+<nav class="navbar navbar-expand-lg navbar-light  border-bottom px-4">
+    <div class="d-flex align-items-center w-100">
+        <button class="btn d-lg-none me-3 p-0 border-0 shadow-none" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#mobileSidebar">
+            <i class="ti ti-menu-2 fs-1"></i></button>
+        <h5 class="mb-0 me-auto">
+            @yield('title', 'Dashboard')
+        </h5>
+        <div class="d-flex align-items-center mx-2">
 
-                <a href="#" class="nav-link px-0" title="Show notifications" data-bs-toggle="tooltip"
-                    data-bs-placement="bottom">
-                    <i class="ti ti-bell" style="font-size: 1.25rem;"></i>
-                </a>
-            </div>
+            <a href="#" class="nav-link btn px-0 shadow-none" onclick="event.preventDefault(); toggleTheme();"
+                title="Toggle Dark Mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <i class="ti ti-sun fs-2 theme-icon-active d-none" id="theme-icon-sun"></i>
+                <i class="ti ti-moon fs-2 theme-icon-active" id="theme-icon-moon"></i>
+            </a>
 
-            <!-- User Menu -->
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                    aria-label="Open user menu">
-
-                    <span class="avatar avatar-sm bg-blue-lt">
-                        {{ strtoupper(substr(auth()->user()->username ?? 'SV', 0, 2)) }}
-                    </span>
-
-                    <div class="d-none d-xl-block ps-2">
-                        <div>{{ auth()->user()->username ?? 'Guest' }}</div>
-                        <div class="mt-1 small text-muted">{{ ucfirst(auth()->user()->role ?? 'User') }}</div>
-                    </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="{{ route('profile.show') }}" class="dropdown-item">Profile</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('logout') }}" class="dropdown-item"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-                </div>
-            </div>
+            <a href="#" class="nav-link btn px-0 shadow-none" title="Show notifications" data-bs-toggle="tooltip"
+                data-bs-placement="bottom">
+                <i class="ti ti-bell" style="font-size: 1.25rem;"></i>
+            </a>
         </div>
-        <div class="collapse navbar-collapse" id="navbar-menu">
-            <!-- Search Bar / Breadcrumbs Area -->
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center link-secondary text-decoration-none dropdown-toggle"
+                data-bs-toggle="dropdown">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                    style="width: 32px; height: 32px;">
+                    {{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}
+                </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <a class="dropdown-item text-danger" href="{{ route('logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Sign out
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf</form>
+                </li>
+            </ul>
         </div>
     </div>
-</header>
+</nav>
