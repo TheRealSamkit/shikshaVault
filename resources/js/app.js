@@ -1,11 +1,16 @@
 // import "./bootstrap"; // Keep Laravel's default axios setup
 
+//import jquery
+import $ from "jquery";
+window.$ = $;
+window.jQuery = $;
+
 // 1. Import Tabler JS
 import "@tabler/core/dist/js/tabler.min.js";
 
 // 2. Import SweetAlert2
 import Swal from "sweetalert2";
-
+//access tabler modal with jquery
 // 3. Configure the "Pro" Toast Mixin
 const Toast = Swal.mixin({
 	toast: true,

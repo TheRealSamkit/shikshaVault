@@ -29,8 +29,6 @@ class Curriculum extends Component
             $query->where('name', 'like', '%' . $this->find_subject . '%');
         }
 
-        // FIX 5: Use the builder to paginate.
-        // (Do not use Subject::get(), as that loads all rows into memory)
         return view('livewire.curriculum', [
             'subjects' => $query->paginate(10, ['*'], 'subjects')
         ]);

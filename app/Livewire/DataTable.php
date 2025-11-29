@@ -15,6 +15,8 @@ class DataTable extends Component
     public $columns = [];   // e.g., [['key' => 'name', 'label' => 'Name']]
     public $title = 'Data';
 
+    public $test;
+
     // State
     public $search = '';
     public $perPage = 10;

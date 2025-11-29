@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Subject;
-use Illuminate\Support\Facades\DB;
+use \Illuminate\Support\Facades\DB;
 
 class CurriculumController extends Controller
 {
@@ -12,8 +12,11 @@ class CurriculumController extends Controller
     public function index()
     {
 
-        $subjects = DB::table('subjects')->pluck('name', 'id');
+        $subjects = DB::table(table: 'subjects')->pluck('name', 'id');
 
         return view('admin.curriculum');
     }
 }
+
+//this is not being used anymore
+?>
