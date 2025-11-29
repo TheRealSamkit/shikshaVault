@@ -32,7 +32,7 @@ return new class extends Migration {
             $table->timestamps();
 
             // Prevent duplicate mapping
-            $table->unique(['program_stream_level_id', 'subject_id']);
+            $table->unique(['program_stream_level_id', 'subject_id'], 'psls_program_level_subject_unique');
         });
     }
 
