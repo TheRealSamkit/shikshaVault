@@ -4,90 +4,101 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
-use Illuminate\Support\Str; // Import Str for checking dot notation
-
-use function Laravel\Prompts\info;
 
 class DataTable extends Component
 {
     use WithPagination;
 
+    public $name;
     public $model;
-    public $columns = [];
     public $title = 'Data';
-
-    // 1. ADD THIS: Property to accept relationships
+    public $columns = [];
     public $with = [];
-    public $inputSize = 'sm';
-    public $test;
     public $search = '';
-    public $perPage = 10;
+    public $inputSize = 'sm';
+    public $test = '';
     public $sortField = 'id';
-    public $sortDirection = 'desc';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+    public $loopFlag = false;
 
-    protected $listeners = ['destroy-item' => 'destroy'];
-
+    // When search is updated, reset pagination
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
-    public function destroy($id, $model)
+    /**
+     * Handle delete event for THIS specific table only.
+     * Use dynamic event listener based on title.
+     */
+    public function getListeners()
     {
-        // Map the aliases to the real classes
-        info("Destroy called with id: $id and model: $model");
-        if ($this->title !== $model) {
-            return;
-        }
-        info("Destroy executed for table: {$this->title}");
+        $kebabTitle = Str::kebab($this->title);
+        return [
+            "destroy-{$kebabTitle}" => 'destroy',
+        ];
+    }
 
+    public function destroy($id)
+    {
         $map = [
             'Subjects' => \App\Models\Subject::class,
             'Academic Fields' => \App\Models\AcademicFields::class,
+            'Program Streams' => \App\Models\ProgramStreams::class,
+            'Program Stream Levels' => \App\Models\ProgramStreamLevels::class,
+            'Curriculum Subjects' => \App\Models\ProgramStreamLevelSubject::class,
+            'Academic Levels' => \App\Models\AcademicLevels::class,
         ];
 
-        // Check if key exists
-        if (!array_key_exists($model, $map)) {
-            abort(403);
+        $realClass = $map[$this->title] ?? null;
+
+        if (!$realClass) {
+            return;
         }
 
-        // Get the real class from the map
-        $realClass = $map[$model];
+        $record = $realClass::find($id);
+        if ($record) {
+            $record->delete();
+        }
 
-        $realClass::find($id)->delete();
+        // Only this specific table will refresh
+        $this->resetPage();
     }
 
     public function render()
     {
         $query = $this->model::query();
 
-        // 2. ADD THIS: Eager load relationships to optimize performance
+        // Eager load relationships
         if (!empty($this->with)) {
             $query->with($this->with);
         }
 
-        // 3. UPDATE THIS: Search Logic for Relationships
+        // Search logic including relationship columns
         if ($this->search) {
-            $query->where(function (Builder $q) {
+            $search = $this->search;
+
+            $query->where(function ($q) use ($search) {
                 foreach ($this->columns as $column) {
                     $key = $column['key'];
 
-                    // Check if the key contains a dot (e.g., 'department.name')
+                    // Handle relationship column: relation.field
                     if (Str::contains($key, '.')) {
-                        // Split relation and field (e.g., relation='department', field='name')
-                        $parts = explode('.', $key);
-                        $relation = array_shift($parts); // Get the first part
-                        $field = implode('.', $parts);   // Rejoin the rest in case of deep nesting
 
-                        // Use orWhereHas to search inside the related table
-                        $q->orWhereHas($relation, function ($subQuery) use ($field) {
-                            $subQuery->where($field, 'like', '%' . $this->search . '%');
+                        $parts = explode('.', $key);
+                        $relation = array_shift($parts);
+                        $field = implode('.', $parts);
+
+                        $q->orWhereHas($relation, function ($sub) use ($field, $search) {
+                            $sub->where($field, 'like', "%{$search}%");
                         });
+
                     } else {
-                        // Standard search for direct columns
-                        $q->orWhere($key, 'like', '%' . $this->search . '%');
+                        $q->orWhere($key, 'like', "%{$search}%");
                     }
                 }
             });
@@ -95,10 +106,8 @@ class DataTable extends Component
 
         $query->orderBy($this->sortField, $this->sortDirection);
 
-        $items = $query->paginate($this->perPage);
-
         return view('livewire.data-table', [
-            'items' => $items
+            'items' => $query->paginate($this->perPage),
         ]);
     }
 }

@@ -1,10 +1,15 @@
 <div class="{{ $test }}">
     <div class="card">
+        @php #
+            if( count($items) === 0){
+                $loopFlag = true;
+            }
+        @endphp
         <div class="card-header mb-0 justify-content-between">
             <div class="card-title">{{ $title }}</div>
             <div class="wrapper d-flex">
                 <input type="text" wire:model.live.debounce.300ms="search"
-                    class="form-control form-control-{{$inputSize}}" placeholder="Search {{ $title }}..">
+                    class="form-control form-control-{{$inputSize}} {{ $loopFlag ? 'd-none' : '' }}" placeholder="Search {{ $title }}..">
 
                 <a href="#" wire:click.prevent="$dispatch('create-{{ Str::kebab($title) }}')"
                     class="btn btn-action p-0">
@@ -17,7 +22,7 @@
                     </svg>
                 </a>
 
-                <a href="#" class="btn btn-action" data-bs-toggle="dropdown">
+                <a href="#" class="btn btn-action {{ $loopFlag ? 'd-none' : '' }}" data-bs-toggle="dropdown">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         class="icon icon-tabler icons-tabler-outline icon-tabler-dots-vertical m-0">
@@ -36,7 +41,7 @@
             <div class="table-responsive" wire:loading.remove>
                 <table class="table table-sm">
                     <thead>
-                        <tr>
+                        <tr class="{{ $loopFlag ? 'd-none' : '' }}">
                             <th class="text-center">#</th>
                             @foreach($columns as $col)
                                 <th>{{ $col['label'] }}</th>
@@ -79,8 +84,8 @@
                                                 </svg>
                                                 Edit
                                             </a>
-                                            <a class="dropdown-item" href="#"
-                                                wire:click.prevent="$dispatch('confirm-delete', { id: {{ $item->id }}, model: '{{ $title }}' })">
+                                            <a class="dropdown-item text-danger" href="#"
+                                                wire:click.prevent="$dispatch('confirm-delete-{{ Str::kebab($title) }}', { id: {{ $item->id }} })">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                     stroke-linecap="round" stroke-linejoin="round"
@@ -99,6 +104,26 @@
                                 </td>
                             </tr>
                         @endforeach
+                        @if($loopFlag)
+                            <tr>
+                                <td colspan="{{ count($columns) + 2 }}">
+                                    <div class="empty">
+                                        <div class="empty-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <circle cx="12" cy="12" r="9" />
+                                                <line x1="9" y1="10" x2="9.01" y2="10" />
+                                                <line x1="15" y1="10" x2="15.01" y2="10" />
+                                                <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
+                                            </svg>
+                                        </div>
+                                        <p class="empty-title">No {{$title}} found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
 
@@ -111,7 +136,8 @@
 
 @script
 <script>
-    $wire.on('confirm-delete', (event) => {
+    // Listen for the specific confirm-delete event for THIS table only
+    $wire.on('confirm-delete-{{ Str::kebab($title) }}', (event) => {
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -130,7 +156,10 @@
             },
         }).then((result) => {
             if (result.isConfirmed) {
-                $wire.dispatch("destroy-item", { id: event.id, model: event.model });
+                // Dispatch to THIS specific table only
+                Livewire.dispatch("destroy-{{ Str::kebab($title) }}", {
+                    id: event.id
+                });
             }
         });
     });
