@@ -11,7 +11,7 @@
                 <input type="text" wire:model.live.debounce.300ms="search"
                     class="form-control form-control-{{$inputSize}} {{ $loopFlag ? 'd-none' : '' }}" placeholder="Search {{ $title }}..">
 
-                <a href="#" wire:click.prevent="$dispatch('create-{{ Str::kebab($title) }}')"
+                <a href="#" wire:click.prevent="create"
                     class="btn btn-action p-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -36,6 +36,12 @@
         </div>
 
         <div class="card-body">
+            @if (session()->has('message'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('message') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <h1 wire:loading>Loading<span class="animated-dots"></span></h1>
 
             <div class="table-responsive" wire:loading.remove>
@@ -73,7 +79,7 @@
                                         </a>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="#"
-                                                wire:click.prevent="$dispatch('edit-item', { id: {{ $item->id }} })">
+                                                wire:click.prevent="edit({{ $item->id }})">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                     stroke-linecap="round" stroke-linejoin="round"
@@ -131,7 +137,151 @@
             </div>
         </div>
     </div>
+ @if($showModal)
+        <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ $editMode ? 'Edit' : 'Create' }} {{ Str::singular($title) }}</h5>
+                        <button type="button" class="btn-close" wire:click="closeModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form wire:submit.prevent="save">
+                            @if($title === 'Subjects')
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control @error('formData.name') is-invalid @enderror" 
+                                           wire:model="formData.name">
+                                    @error('formData.name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Code</label>
+                                    <input type="text" class="form-control @error('formData.code') is-invalid @enderror" 
+                                           wire:model="formData.code">
+                                    @error('formData.code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
 
+                            @elseif($title === 'Academic Fields')
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control @error('formData.name') is-invalid @enderror" 
+                                           wire:model="formData.name">
+                                    @error('formData.name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Slug</label>
+                                    <input type="text" class="form-control @error('formData.slug') is-invalid @enderror" 
+                                           wire:model="formData.slug">
+                                    @error('formData.slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                            @elseif($title === 'Program Streams')
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control @error('formData.name') is-invalid @enderror" 
+                                           wire:model="formData.name">
+                                    @error('formData.name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Slug</label>
+                                    <input type="text" class="form-control @error('formData.slug') is-invalid @enderror" 
+                                           wire:model="formData.slug">
+                                    @error('formData.slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Academic Field</label>
+                                    <select class="form-select @error('formData.academic_field_id') is-invalid @enderror" 
+                                            wire:model="formData.academic_field_id">
+                                        <option value="">Select Academic Field</option>
+                                        @foreach($this->getDropdownOptions('academic_field_id') as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('formData.academic_field_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                            @elseif($title === 'Program Stream Levels')
+                                <div class="mb-3">
+                                    <label class="form-label">Program Stream</label>
+                                    <select class="form-select @error('formData.program_stream_id') is-invalid @enderror" 
+                                            wire:model="formData.program_stream_id">
+                                        <option value="">Select Program Stream</option>
+                                        @foreach($this->getDropdownOptions('program_stream_id') as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('formData.program_stream_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Academic Level</label>
+                                    <select class="form-select @error('formData.academic_level_id') is-invalid @enderror" 
+                                            wire:model="formData.academic_level_id">
+                                        <option value="">Select Academic Level</option>
+                                        @foreach($this->getDropdownOptions('academic_level_id') as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('formData.academic_level_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                            @elseif($title === 'Curriculum Subjects')
+                                <div class="mb-3">
+                                    <label class="form-label">Subject</label>
+                                    <select class="form-select @error('formData.subject_id') is-invalid @enderror" 
+                                            wire:model="formData.subject_id">
+                                        <option value="">Select Subject</option>
+                                        @foreach($this->getDropdownOptions('subject_id') as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('formData.subject_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Program Stream Level</label>
+                                    <select class="form-select @error('formData.program_stream_level_id') is-invalid @enderror" 
+                                            wire:model="formData.program_stream_level_id">
+                                        <option value="">Select Program Stream Level</option>
+                                        @foreach($this->getDropdownOptions('program_stream_level_id') as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach 
+                                    </select>
+                                    @error('formData.program_stream_level_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                            @elseif($title === 'Academic Levels')
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control @error('formData.name') is-invalid @enderror" 
+                                           wire:model="formData.name">
+                                    @error('formData.name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            @elseif($title === 'Resource Types')
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control @error('formData.name') is-invalid @enderror" 
+                                           wire:model="formData.name">
+                                    @error('formData.name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Slug</label>
+                                    <input type="text" class="form-control @error('formData.slug') is-invalid @enderror" 
+                                           wire:model="formData.slug">
+                                    @error('formData.slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            @endif
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" wire:click="closeModal">Cancel</button>
+                        <button type="button" class="btn btn-primary" wire:click="save">
+                            {{ $editMode ? 'Update' : 'Create' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    @endif
 </div>
 
 @script

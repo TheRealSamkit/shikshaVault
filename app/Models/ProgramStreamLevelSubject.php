@@ -3,18 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ProgramStreamLevelSubject extends Model
 {
+    use HasFactory;
+
+    protected $fillable = ['subject_id', 'program_stream_level_id'];
+
     public function subject()
     {
-        // Links to 'subjects' table
         return $this->belongsTo(Subject::class);
     }
 
     public function programStreamLevel()
     {
-        // Links to 'program_stream_levels' table
         return $this->belongsTo(ProgramStreamLevels::class);
     }
     // In App\Models\ProgramStreamLevelSubject

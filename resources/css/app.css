@@ -21,6 +21,13 @@ html {
 .colored-toast.swal2-icon-error {
 	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
 }
+
+.modal-backdrop {
+	background-color: #000; /* Dark red */
+}
+body.modal-open {
+	overflow: hidden !important; /* Prevents vertical and horizontal scrolling */
+}
 .colored-toast {
 	border-radius: 4px !important;
 	padding: 10px 15px !important;

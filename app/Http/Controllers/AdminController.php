@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\DigitalFile;
+use App\Models\Reports;
 use App\Models\TokenTransaction;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -13,16 +15,17 @@ class AdminController extends Controller
     public function index()
     {
         // Count everything to show a nice summary
+        $latestUserCount = User::where('role', 'user')->where('created_at', '>', Carbon::now()->subDay())->count();
         $totalUsers = User::count();
         $totalFiles = DigitalFile::count();
-
+        $reportCount = Reports::where('status', 'pending')->count();
         // Calculate total economy size (all tokens in existence)
         $totalTokens = User::sum('tokens');
 
         // Get the 5 most recent uploads (for quick review)
         $recentUploads = DigitalFile::with('user')->latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('totalUsers', 'totalFiles', 'totalTokens', 'recentUploads'));
+        return view('admin.dashboard', compact('totalUsers', 'totalFiles', 'totalTokens', 'recentUploads', 'latestUserCount', 'reportCount'));
     }
 
     // 2. Delete a File (Moderation)

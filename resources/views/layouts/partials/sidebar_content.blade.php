@@ -5,7 +5,7 @@
 
     <ul class="nav nav-pills flex-column p-2">
         @if(auth()->check() && auth()->user()->role === 'admin')
-            <div class="small text-uppercase text-white-50 mb-2 px-3">Admin</div>
+            <div class="small text-uppercase text-body   mb-2 px-3">Admin</div>
             <li>
                 <a href="{{ route('admin.dashboard') }}"
                     class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" wire:navigate>
@@ -36,7 +36,7 @@
             </li>
 
             <hr class="my-4">
-            <div class="small text-uppercase text-white-50 mb-2 px-3">System</div>
+            <div class="small text-uppercase text-body mb-2 px-3">System</div>
 
         @endif
         <li class="nav-item">
