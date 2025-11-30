@@ -1,17 +1,20 @@
-// import "./bootstrap"; // Keep Laravel's default axios setup
-
-//import jquery
-import $ from "jquery";
-window.$ = $;
-window.jQuery = $;
-
-// 1. Import Tabler JS
+import "./bootstrap";
 import "@tabler/core/dist/js/tabler.min.js";
-
-// 2. Import SweetAlert2
+import $ from "jquery";
+import Dropzone from "dropzone";
+import "dropzone/dist/dropzone.css";
 import Swal from "sweetalert2";
-//access tabler modal with jquery
-// 3. Configure the "Pro" Toast Mixin
+
+// 1. Setup jQuery
+window.$ = window.jQuery = $;
+
+// 2. Setup Dropzone
+Dropzone.autoDiscover = false;
+window.Dropzone = Dropzone;
+
+// 3. Setup SweetAlert
+window.Swal = Swal;
+
 const Toast = Swal.mixin({
 	toast: true,
 	position: "top-end",
@@ -28,27 +31,12 @@ const Toast = Swal.mixin({
 	},
 });
 
-// 4. Make it Global (so you can use it in Blade files)
-window.Swal = Swal;
 window.showToast = (type, message) => {
-	let color = type === "success" ? "#2fb344" : "#d63939"; // Tabler Green/Red
-
+	let color = type === "success" ? "#2fb344" : "#d63939";
 	Toast.fire({
 		icon: type,
 		title: message,
 		background: color,
 		color: "#fff",
-	});
-};
-
-window.showAlert = (type, title, message) => {
-	if (title || message || type) return;
-	switch (type) {
-		case "success":
-	}
-	Swal.fire({
-		icon: type,
-		title: title,
-		text: message,
 	});
 };

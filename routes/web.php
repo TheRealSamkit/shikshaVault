@@ -23,6 +23,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('file.destroy');
 
 
+    Route::get('/testUpload', function () {
+        return view('upload.uploadForm');
+    })->name('upload.uploadForm');
     Route::get('/upload', [App\Http\Controllers\FileUploadController::class, 'create'])->name('upload.create');
     Route::post('/upload', [App\Http\Controllers\FileUploadController::class, 'store'])->name('upload.store');
 

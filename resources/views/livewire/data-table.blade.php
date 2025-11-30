@@ -10,8 +10,7 @@
             <div class="wrapper d-flex">
                 <input type="text" wire:model.live.debounce.300ms="search"
                     class="form-control form-control-{{$inputSize}} {{ $loopFlag ? 'd-none' : '' }}" placeholder="Search {{ $title }}..">
-
-                <a href="#" wire:click.prevent="create"
+                <a href="#" wire:click.prevent="create" wire:loading.attr="disabled"
                     class="btn btn-action p-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -272,8 +271,8 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" wire:click="closeModal">Cancel</button>
-                        <button type="button" class="btn btn-primary" wire:click="save">
+                        <button type="button" class="btn btn-default" wire:click="closeModal" wire:loading.attr="disabled">Cancel</button>
+                        <button type="button" class="btn btn-primary" wire:click="save" wire:loading.attr="disabled">
                             {{ $editMode ? 'Update' : 'Create' }}
                         </button>
                     </div>

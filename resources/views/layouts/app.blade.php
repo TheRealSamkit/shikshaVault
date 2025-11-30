@@ -8,9 +8,7 @@
 
         <title>{{ config('app.name', 'ShikshaVault') }}</title>
 
-        <script src="{{ Vite::asset('resources/js/theme.js') }}"></script>
-
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/theme.js'])
         @livewireStyles
     </head>
 

@@ -28,7 +28,7 @@
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-                <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
+                <li><a class="dropdown-item" href="{{ route('profile.show') }}" wire:navigate>Profile</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
