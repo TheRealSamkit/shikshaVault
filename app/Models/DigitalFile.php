@@ -49,4 +49,43 @@ class DigitalFile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
+
+    public function resourceType(): BelongsTo
+    {
+        return $this->belongsTo(ResourceTypes::class, 'resource_type_id');
+    }
+
+    public function institution(): BelongsTo
+    {
+        return $this->belongsTo(Institution::class, 'institution_id');
+    }
+
+    public function academicLevels(): BelongsTo
+    {
+        return $this->belongsTo(AcademicLevels::class, 'academic_level_id');
+    }
+    public function subjects(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
+
+    public function resourceTypes(): BelongsTo
+    {
+        return $this->belongsTo(ResourceTypes::class, 'resource_type_id');
+    }
+
+    public function institutions(): BelongsTo
+    {
+        return $this->belongsTo(Institution::class, 'institution_id');
+    }
+
+    public function academicLevel(): BelongsTo
+    {
+        return $this->belongsTo(AcademicLevels::class, 'academic_level_id');
+    }
 }

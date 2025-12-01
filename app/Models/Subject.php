@@ -15,5 +15,9 @@ class Subject extends Model
     {
         return $this->hasMany(ProgramStreamLevelSubject::class);
     }
+    public function digitalFiles()
+    {
+        return $this->hasMany(DigitalFile::class);
+    }
 }
 

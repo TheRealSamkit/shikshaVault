@@ -29,7 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Not working properly
     Route::get('/download/{slug}', [App\Http\Controllers\DownloadController::class, 'download'])
         ->name('file.download');
-
+    //myUploads
+    Route::get('/uploads', function () {
+        return view('uploads');
+    })->name('uploads');
     //Profile page
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
 });
@@ -38,6 +41,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+    Route::get('/admin/test', function () {
+        return view('admin.test');
+    })->name('admin.test');
 
     Route::delete('/file/{id}', [App\Http\Controllers\AdminController::class, 'deleteFile'])
         ->name('admin.file.delete');

@@ -6,7 +6,37 @@ import Swal from "sweetalert2";
 
 // 1. Setup jQuery
 window.$ = window.jQuery = $;
-
+window.copyToClipboard = (text) => {
+	if (navigator.clipboard && window.isSecureContext) {
+		// Modern Async API
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				window.showToast("success", "Link copied to clipboard!");
+			})
+			.catch((err) => {
+				console.error("Failed to copy: ", err);
+				window.showToast("error", "Failed to copy link.");
+			});
+	} else {
+		// Fallback for older browsers
+		let textArea = document.createElement("textarea");
+		textArea.value = text;
+		textArea.style.position = "fixed";
+		textArea.style.left = "-9999px";
+		document.body.appendChild(textArea);
+		textArea.focus();
+		textArea.select();
+		try {
+			document.execCommand("copy");
+			window.showToast("success", "Link copied to clipboard!");
+		} catch (err) {
+			console.error("Fallback copy failed", err);
+			window.showToast("error", "Failed to copy link.");
+		}
+		document.body.removeChild(textArea);
+	}
+};
 // 2. Setup Dropzone
 Dropzone.autoDiscover = false;
 window.Dropzone = Dropzone;
