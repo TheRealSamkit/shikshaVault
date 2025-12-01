@@ -1,11 +1,7 @@
-/* 1. Import Tabler Core (Includes Bootstrap 5 inside it) */
 @import url("../../node_modules/@tabler/core/dist/css/tabler.min.css");
 @import url("../../node_modules/@tabler/core/dist/css/tabler-themes.min.css");
-@import url("../../node_modules/@tabler/core/dist/css/tabler-flags.min.css");
-@import url("../../node_modules/@tabler/core/dist/css/tabler-payments.min.css");
 @import url("../../node_modules/@tabler/core/dist/css/tabler-vendors.min.css");
 
-/* 2. Import Tabler Icons */
 @import url("../../node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css");
 
 html {
@@ -24,15 +20,10 @@ html {
 }
 
 .modal-backdrop {
-	background-color: #000; /* Dark red */
+	background-color: #000;
 }
 body.modal-open {
-	overflow: hidden !important; /* Prevents vertical and horizontal scrolling */
-}
-.colored-toast {
-	border-radius: 4px !important;
-	padding: 10px 15px !important;
-	background-color: #fff !important;
+	overflow: hidden !important;
 }
 
 .dashboard-container {
