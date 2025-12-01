@@ -18,7 +18,7 @@
                 @include('layouts.partials.sidebar_content')
             </aside>
 
-            <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="mobileSidebar">
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title fs-1">ShikshaVault</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"><svg

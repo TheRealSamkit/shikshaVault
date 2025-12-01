@@ -20,20 +20,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::delete('/file/{id}', [App\Http\Controllers\FileUploadController::class, 'destroy'])
-        ->name('file.destroy');
+        ->name('file.destroy');//Replace in future
 
-
-    Route::get('/testUpload', function () {
-        return view('upload.uploadForm');
-    })->name('upload.uploadForm');
+    //Need Updates
     Route::get('/upload', [App\Http\Controllers\FileUploadController::class, 'create'])->name('upload.create');
     Route::post('/upload', [App\Http\Controllers\FileUploadController::class, 'store'])->name('upload.store');
 
-
+    //Not working properly
     Route::get('/download/{slug}', [App\Http\Controllers\DownloadController::class, 'download'])
         ->name('file.download');
 
-
+    //Profile page
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
 });
 

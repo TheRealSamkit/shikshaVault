@@ -1,4 +1,3 @@
-import "./bootstrap";
 import "@tabler/core/dist/js/tabler.min.js";
 import $ from "jquery";
 import Dropzone from "dropzone";

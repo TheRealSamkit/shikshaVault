@@ -10,33 +10,23 @@ class FileUploader extends Component
 {
     use WithFileUploads;
 
-    // Form Inputs
-    public $title;
-    public $description;
-    public $file;
-    public $tags = [];
+    // Inputs
+    public $title, $description, $file;
 
-    // Dropdown States
+    // IDs
     public $academic_field_id = '';
     public $program_stream_id = '';
     public $program_stream_level_id = '';
-    public $program_stream_level_subject_id = '';
+    public $subject_id = ''; // Renamed from program_stream_level_subject_id
     public $resource_type_id = '';
 
-    // Institution Search States
+    // Search
     public $institution_id = '';
     public $institution_query = '';
     public $institution_results = [];
-    // We will control visibility mostly via Alpine now for focus/blur events, 
-    // but we keep this to track if we have results.
-    public $has_results = false;
 
-    // Data Collections
-    public $academic_fields = [];
-    public $program_streams = [];
-    public $stream_levels = [];
-    public $subjects = [];
-    public $resource_types = [];
+    // Lists
+    public $academic_fields = [], $program_streams = [], $stream_levels = [], $subjects = [], $resource_types = [];
 
     protected $rules = [
         'title' => 'required|string|min:5|max:255',
@@ -44,10 +34,9 @@ class FileUploader extends Component
         'academic_field_id' => 'required',
         'program_stream_id' => 'required',
         'program_stream_level_id' => 'required',
-        'program_stream_level_subject_id' => 'required',
+        'subject_id' => 'required',
         'resource_type_id' => 'required',
         'institution_id' => 'required',
-        // CHANGED: Removed zip, rar. Added specific image/doc types.
         'file' => 'required|file|max:10240|mimes:jpeg,png,jpg,pdf,doc,docx,ppt,pptx,xlsx,xls',
     ];
 
@@ -57,19 +46,23 @@ class FileUploader extends Component
         $this->resource_types = LookupHelper::getResourceTypes();
     }
 
-    // --- Institution Search Logic ---
+    // --- Search Logic ---
+    public function loadInitialInstitutions()
+    {
+        if (empty($this->institution_query)) {
+            $this->institution_results = \App\Models\Institution::orderBy('name')->limit(10)->get()->toArray();
+        } else {
+            $this->updatedInstitutionQuery();
+        }
+    }
 
     public function updatedInstitutionQuery()
     {
         $this->institution_id = '';
-
         if (strlen($this->institution_query) >= 1) {
-            $results = LookupHelper::searchInstitutions($this->institution_query);
-            $this->institution_results = $results->toArray();
-            $this->has_results = $results->isNotEmpty();
+            $this->institution_results = LookupHelper::searchInstitutions($this->institution_query)->toArray();
         } else {
             $this->institution_results = [];
-            $this->has_results = false;
         }
     }
 
@@ -77,14 +70,14 @@ class FileUploader extends Component
     {
         $this->institution_id = $id;
         $this->institution_query = $name;
-        $this->institution_results = []; // Clear results to hide dropdown
-        $this->has_results = false;
+        $this->institution_results = [];
     }
 
-    // --- Cascading Logic (Same as before) ---
+    // --- Cascading Logic ---
+
     public function updatedAcademicFieldId($value)
     {
-        $this->reset(['program_stream_id', 'program_stream_level_id', 'program_stream_level_subject_id']);
+        $this->reset(['program_stream_id', 'program_stream_level_id', 'subject_id']);
         $this->program_streams = [];
         $this->stream_levels = [];
         $this->subjects = [];
@@ -94,25 +87,25 @@ class FileUploader extends Component
 
     public function updatedProgramStreamId($value)
     {
-        $this->reset(['program_stream_level_id', 'program_stream_level_subject_id']);
+        $this->reset(['program_stream_level_id', 'subject_id']);
         $this->stream_levels = [];
         $this->subjects = [];
-        if ($value)
-            $this->stream_levels = LookupHelper::getStreamLevels($value);
-    }
 
-    public function updatedProgramStreamLevelId($value)
-    {
-        $this->reset(['program_stream_level_subject_id']);
-        $this->subjects = [];
-        if ($value)
+        if ($value) {
+            // 1. Load Levels (Semesters)
+            $this->stream_levels = LookupHelper::getStreamLevels($value);
+
+            // 2. COMPLETE FIX: Load Subjects immediately based on Stream
+            // We no longer wait for the Semester to be picked.
             $this->subjects = LookupHelper::getSubjects($value);
+        }
     }
 
     public function save()
     {
         $this->validate();
-        session()->flash('success', 'File validated and ready for upload.');
+        session()->flash('success', 'File validated successfully.');
+        // In actual save: 'subject_id' => $this->subject_id
     }
 
     public function render()

@@ -5,9 +5,8 @@ namespace App\Helpers;
 use App\Models\AcademicFields;
 use App\Models\ProgramStreams;
 use App\Models\ProgramStreamLevels;
-use App\Models\ProgramStreamLevelSubject;
-use App\Models\ResourceTypes;
 use App\Models\Institution;
+use App\Models\ResourceTypes;
 
 class LookupHelper
 {
@@ -25,18 +24,25 @@ class LookupHelper
 
     public static function getStreamLevels($streamId)
     {
-        return ProgramStreamLevels::with('academicLevels')
+        // Fetches allowed semesters for this stream (e.g., Sem 1-6 for Diploma)
+        // This ensures a Diploma student doesn't see "Semester 8"
+        return ProgramStreamLevels::with('academicLevels') // Ensure relation name matches Model
             ->where('program_stream_id', $streamId)
             ->get()
-            ->sortBy(fn($q) => $q->academicLevel->level_order ?? 0);
+            ->sortBy(fn($q) => $q->academicLevels->level_order ?? 0);
     }
 
-    public static function getSubjects($streamLevelId)
+    public static function getSubjects($streamId)
     {
-        return ProgramStreamLevelSubject::with('subject')
-            ->where('program_stream_level_id', $streamLevelId)
-            ->get()
-            ->sortBy(fn($q) => $q->subject->name ?? '');
+        // COMPLETE FIX: Fetches subjects directly associated with the Stream.
+        // Independent of the Semester.
+        $stream = ProgramStreams::with([
+            'subjects' => function ($query) {
+                $query->orderBy('name');
+            }
+        ])->find($streamId);
+
+        return $stream ? $stream->subjects : collect([]);
     }
 
     public static function getResourceTypes()
@@ -46,7 +52,7 @@ class LookupHelper
 
     public static function searchInstitutions($query)
     {
-        // CHANGED: Removed first '%' to match only start of string
+        // Only search from start of string
         return Institution::where('name', 'like', $query . '%')
             ->orderBy('name')
             ->limit(10)

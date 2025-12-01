@@ -28,7 +28,6 @@
                                         autoProcessQueue: false,
                                         maxFiles: 1,
                                         maxFilesize: 10, // 10MB Limit
-                                        // CHANGED: Strict file types (Images, PDF, PPT, DOC, XLS) - No ZIP
                                         acceptedFiles: 'image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx',
                                         addRemoveLinks: true,
                                         clickable: true, 
@@ -47,7 +46,7 @@
                             }
                          }" x-init="initDropzone()">
                         <div id="document-dropzone"
-                            class="dropzone border-2 border-dashed bg-body rounded-3 text-center d-flex flex-column align-items-center justify-content-center p-5"
+                            class="dropzone border-2 border-dashed rounded-3 text-center d-flex flex-column align-items-center justify-content-center p-5"
                             style="min-height: 220px; cursor: pointer;">
                             <div class="dz-message needsclick">
                                 <i class="ti ti-cloud-upload display-3 text-primary opacity-75 mb-3"></i>
@@ -124,21 +123,28 @@
                                 <option value="{{ $level->id }}">{{ $level->academicLevels->name ?? 'Unknown' }}</option>
                             @endforeach
                         </select>
+                        @if($program_stream_id && $stream_levels->isEmpty())
+                            <div class="text-warning small mt-1"><i class="ti ti-info-circle me-1"></i>No Academic Level
+                                found.
+                            </div>
+                        @endif
                         @error('program_stream_level_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Subject</label>
-                        <select wire:model="program_stream_level_subject_id"
-                            class="form-select @error('program_stream_level_subject_id') is-invalid @enderror"
-                            @if(!$program_stream_level_id) disabled @endif>
+                        <label class="form-label fw-semibold">Subject / Course</label>
+                        <select wire:model="subject_id" class="form-select @error('subject_id') is-invalid @enderror"
+                            @if(!$program_stream_id) disabled @endif>
                             <option value="">Select Subject...</option>
                             @foreach($subjects as $item)
-                                <option value="{{ $item->id }}">{{ $item->subject->name ?? 'Unknown' }}</option>
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
                         </select>
-                        @error('program_stream_level_subject_id') <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        @if($program_stream_id && count($subjects) == 0)
+                            <div class="text-warning small mt-1"><i class="ti ti-alert-triangle me-1"></i>No subjects mapped
+                                to this stream yet.</div>
+                        @endif
+                        @error('subject_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -163,7 +169,7 @@
                         <label class="form-label fw-semibold">Institution / University</label>
 
                         <div x-show="focused && $wire.institution_query.length > 0"
-                            class="list-group position-absolute w-100 shadow border mb-1 bg-body"
+                            class="list-group position-absolute w-100 shadow border mb-1 bg-secondary-subtle"
                             style="z-index: 1000; max-height: 250px; overflow-y: auto; bottom: 100%; display: none;">
 
                             @if(!empty($institution_results) && count($institution_results) > 0)
@@ -174,16 +180,16 @@
                                     </button>
                                 @endforeach
                             @else
-                                <div class="list-group-item text-muted small p-3 bg-body">
+                                <div class="list-group-item text-muted small p-3 bg-secondary-subtle">
                                     <i class="ti ti-search-off me-1"></i> No data found for "{{ $institution_query }}"
                                 </div>
                             @endif
                         </div>
 
                         <div class="input-group">
-                            <span class="input-group-text bg-body"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
+                            <span class="input-group-text bg-secondary-subtle"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                     class="icon icon-tabler icons-tabler-outline icon-tabler-search">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
