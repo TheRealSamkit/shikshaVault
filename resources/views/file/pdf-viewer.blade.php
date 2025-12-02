@@ -23,7 +23,11 @@
     </head>
 
     <body>
-        <iframe src="https://mozilla.github.io/pdf.js/web/viewer.html?file={{ urlencode($src) }}"></iframe>
+        <!-- 
+      We point the iframe to the 'viewer.html' inside our public/pdfjs/web folder.
+      The 'file' query parameter tells PDF.js where to fetch the raw PDF data from.
+    -->
+        <iframe src="{{ asset('pdfjs/web/viewer.html') }}?file={{ urlencode($src) }}"></iframe>
     </body>
 
 </html>

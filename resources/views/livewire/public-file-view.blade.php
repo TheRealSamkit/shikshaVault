@@ -46,20 +46,40 @@
 
                     <hr class="my-3">
 
+                    <!-- Metadata Tags -->
                     <div class="col-lg-12 bg-muted-lt p-3 rounded">
                         <div class="fw-semibold text-muted mb-2">Details</div>
-                        <div class="d-flex flex-wrap gap-2">
-                            @if($file->academicField) <span class="badge bg-primary-lt">{{ $file->academicField->name }}</span> @endif
-                            @if($file->academicLevel) <span class="badge bg-indigo-lt">{{ $file->academicLevel->name }}</span> @endif
-                            @if($file->subject) <span class="badge bg-azure-lt">{{ $file->subject->name }}</span> @endif
-                            @if($file->resourceType) <span class="badge bg-teal-lt">{{ $file->resourceType->name }}</span> @endif
-                            @if($file->institution) <span class="badge bg-default-lt">{{ $file->institution->name }}</span> @endif
-                            <span class="badge bg-warning-lt">{{ round($file->file_size / 1024, 2) }} KB</span>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Author/Uploader</div>
+                                <div class="font-weight-medium">{{ $file->user->username ?? 'Unknown' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Publisher/Institution</div>
+                                <div class="font-weight-medium">{{ $file->institution->name ?? 'Not Specified' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Subject</div>
+                                <div class="font-weight-medium">{{ $file->subject->name ?? 'General' }}</div>
+                            </div>
+                             <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Academic Level</div>
+                                <div class="font-weight-medium">{{ $file->academicLevel->name ?? 'N/A' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Resource Type</div>
+                                <div class="font-weight-medium">{{ $file->resourceType->name ?? 'File' }}</div>
+                            </div>
+                             <div class="col-md-6">
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">File Size</div>
+                                <div class="font-weight-medium">{{ round($file->file_size / 1024, 2) }} KB</div>
+                            </div>
                         </div>
                     </div>
                     
                     <hr class="my-3">
                     
+                    <!-- Stats -->
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="d-flex align-items-center gap-4">
                             <!-- Downloads -->
@@ -92,13 +112,8 @@
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center mt-2 mt-sm-0">
-                            <span class="avatar avatar-sm me-2 bg-azure-lt">{{ substr($file->user->username ?? 'U', 0, 1) }}</span>
-                            <div class="lh-sm">
-                                <div class="strong">{{ $file->user->username ?? 'Unknown' }}</div>
-                                <div class="text-muted text-xs">Uploaded {{ $file->upload_date ? \Carbon\Carbon::parse($file->upload_date)->diffForHumans() : '' }}</div>
-                            </div>
-                        </div>
+                        <!-- Upload Date -->
+                         <div class="text-muted text-sm">Uploaded {{ $file->upload_date ? \Carbon\Carbon::parse($file->upload_date)->diffForHumans() : '' }}</div>
                     </div>
                 </div>
             </div>
@@ -125,6 +140,7 @@
                                 Download
                             </button>
 
+                            <!-- Preview Button (Visible ONLY if supported: PDF or Image) -->
                             @if($this->canPreview)
                                 <button wire:click="processAction('preview')" class="btn btn-ghost-primary btn-lg" wire:loading.attr="disabled">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye me-2">
@@ -186,6 +202,7 @@
             </div>
         </div>
 
+        <!-- Bottom Row: Feedback & Ratings -->
         <div class="col-12 mt-4">
             <div class="card">
                 <div class="card-header">
@@ -271,7 +288,9 @@
             </div>
         </div>
     </div>
-    <livewire:image-preview-modal />
+
+    <!-- Reusable Image Modal Component -->
+    @livewire('image-preview-modal')
 
 </div>
 
