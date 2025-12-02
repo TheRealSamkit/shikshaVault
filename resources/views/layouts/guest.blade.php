@@ -22,8 +22,12 @@
                     <a href="{{ url('/') }}" class="navbar-brand navbar-brand-autodark">
                         <h1 class="m-0">ShikshaVault</h1>
                     </a>
-                </div> @yield('content')
+                </div>
+                @yield('content')
                 @livewireScripts
+            </div>
+            <div class="mx-lg-5 mx-md-1 px-lg-4 px-md-1 mb-4">
+                @yield('pubilc-file')
             </div>
         </div>
     </body>

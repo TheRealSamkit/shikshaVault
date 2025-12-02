@@ -56,7 +56,6 @@
                     </div>
                 </div>
                 @yield('modals')
-                <!-- FOOTER -->
                 <footer class="mt-auto py-3  border-top text-center text-muted small">
                     &copy; {{ date('Y') }} ShikshaVault. All rights reserved.
                 </footer>

@@ -8,7 +8,6 @@
             <form action="{{ route('login') }}" method="POST" autocomplete="off">
                 @csrf
 
-                <!-- Email Address -->
                 <div class="mb-3">
                     <label class="form-label">Email address</label>
                     <input type="email" name="email" value="{{ old('email') }}"
@@ -19,7 +18,6 @@
                     @enderror
                 </div>
 
-                <!-- Password -->
                 <div class="mb-2">
                     <label class="form-label">
                         Password
@@ -33,14 +31,12 @@
                     <div class="input-group input-group-flat">
                         <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
                             placeholder="Your password" autocomplete="current-password" required>
-                        <!-- Tabler "Show Password" Icon logic can be added here with JS, keeping it simple for now -->
                     </div>
                     @error('password')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <!-- Remember Me -->
                 <div class="mb-2">
                     <label class="form-check">
                         <input type="checkbox" class="form-check-input" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
@@ -48,7 +44,6 @@
                     </label>
                 </div>
 
-                <!-- Submit Button -->
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary w-100">Sign in</button>
                 </div>

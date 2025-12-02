@@ -5,6 +5,7 @@ import "dropzone/dist/dropzone.css";
 import Swal from "sweetalert2";
 
 // 1. Setup jQuery
+window.StarRating = StarRating;
 window.$ = window.jQuery = $;
 window.copyToClipboard = (text) => {
 	if (navigator.clipboard && window.isSecureContext) {

@@ -26,6 +26,8 @@ class DigitalFile extends Model
         'keywords',
         'visibility',
         'status',
+        'download_count',
+        'average_rating',
         'page_count',
         // Foreign Keys
         'institution_id',
@@ -68,6 +70,10 @@ class DigitalFile extends Model
     public function academicLevels(): BelongsTo
     {
         return $this->belongsTo(AcademicLevels::class, 'academic_level_id');
+    }
+    public function academicField(): BelongsTo
+    {
+        return $this->belongsTo(AcademicFields::class, 'academic_field_id');
     }
     public function subjects(): BelongsTo
     {
