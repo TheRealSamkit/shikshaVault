@@ -1,6 +1,7 @@
 <div class="wrapper">
     <div class="row row-cards">
         
+        <!-- Left Column: File Details -->
         <div class="col-lg-8">
             <div class="card h-100">
                 <div class="card-body">
@@ -15,6 +16,7 @@
                             @endif
                         </h2>
                         
+                        <!-- Copy Link -->
                         <div class="col-auto ms-auto d-print-none" x-data="{ copied: false }">
                             <button @click="
                                 navigator.clipboard.writeText('{{ route('file.view', $file->slug) }}');
@@ -60,6 +62,7 @@
                     
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="d-flex align-items-center gap-4">
+                            <!-- Downloads -->
                             <div class="d-flex align-items-center text-muted" title="Downloads">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -70,6 +73,7 @@
                                 {{ $file->download_count }}
                             </div>
 
+                            <!-- Rating -->
                             <div class="d-flex align-items-center text-warning" title="Average Rating">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="icon me-1">
                                     <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
@@ -77,6 +81,7 @@
                                 {{ number_format($file->average_rating ?? 0, 1) }}
                             </div>
 
+                            <!-- Report Count -->
                             <div class="d-flex align-items-center text-danger" title="Reports">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -99,7 +104,9 @@
             </div>
         </div>
 
+        <!-- Right Column: Actions & Reports -->
         <div class="col-lg-4">
+            <!-- 1. Actions Card -->
             <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="card-title">Actions</h3>
@@ -107,6 +114,7 @@
                 <div class="card-body">
                     @auth
                         <div class="d-grid gap-2">
+                            <!-- Download Button -->
                             <button wire:click="processAction('download')" class="btn btn-primary btn-lg" wire:loading.attr="disabled">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download me-2">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -117,14 +125,16 @@
                                 Download
                             </button>
 
-                            <button wire:click="processAction('preview')" class="btn btn-ghost-primary btn-lg" wire:loading.attr="disabled">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye me-2">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                </svg>
-                                Preview
-                            </button>
+                            @if($this->canPreview)
+                                <button wire:click="processAction('preview')" class="btn btn-ghost-primary btn-lg" wire:loading.attr="disabled">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye me-2">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                    </svg>
+                                    Preview
+                                </button>
+                            @endif
                         </div>
                     @else
                         <div class="text-center p-3">
@@ -135,6 +145,7 @@
                 </div>
             </div>
 
+            <!-- 2. Report Card -->
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title text-danger">Report File</h3>
@@ -224,6 +235,7 @@
                         @endif
                     @endauth
 
+                    <!-- Reviews List -->
                     <div class="list-group list-group-flush">
                         @forelse($reviews as $review)
                             <div class="list-group-item ps-0 pe-0">
@@ -259,4 +271,17 @@
             </div>
         </div>
     </div>
+    <livewire:image-preview-modal />
+
 </div>
+
+@script
+<script>
+    Livewire.on('toast', (event) => {
+        const data = event[0] || event; 
+        if (typeof window.showToast === 'function') {
+            window.showToast(data.type, data.message);
+        }
+    });
+</script>
+@endscript

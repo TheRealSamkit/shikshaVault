@@ -56,6 +56,30 @@ class FileAccessController extends Controller
         }
 
         return $this->serveFile($file, false, $request);
+    }// Add this method to your FileAccessController class
+
+    public function viewPdfWrapper($slug)
+    {
+        $file = DigitalFile::where('slug', $slug)->firstOrFail();
+
+        // Re-verify access just in case they try to access URL directly
+        // (You can extract this logic to a private method to avoid duplication)
+        if (Auth::id() !== $file->user_id) {
+            $access = AccessedFile::where('user_id', Auth::id())
+                ->where('file_id', $file->id)
+                ->first();
+
+            if (!$access) {
+                return redirect()->route('file.view', $slug)->with('error', 'Access denied.');
+            }
+        }
+
+        // Return a specific view for PDF.js, passing the raw file URL
+        // We use the existing 'file.preview' route as the source for the PDF viewer
+        return view('file.pdf-viewer', [
+            'file' => $file,
+            'src' => route('file.preview', $slug)
+        ]);
     }
 
     private function serveFile($file, $isDownload, $request)
@@ -92,6 +116,7 @@ class FileAccessController extends Controller
                 ]);
             }
         }
+
 
         return response()->file($fullPath, [
             'Content-Disposition' => ($isDownload ? 'attachment' : 'inline') . '; filename="' . $file->title . '.' . $file->file_type . '"'

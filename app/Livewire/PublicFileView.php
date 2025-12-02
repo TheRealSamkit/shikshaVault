@@ -20,15 +20,11 @@ class PublicFileView extends Component
     public $file;
     public $reportCount = 0;
 
-    // User Interaction States
     public $userHasRated = false;
     public $userHasReported = false;
 
-    // Feedback Inputs
     public $rating = 0;
     public $comment = '';
-
-    // Reporting Inputs
     public $reportReason = '';
     public $reportDetails = '';
 
@@ -62,52 +58,82 @@ class PublicFileView extends Component
 
         $user = Auth::user();
 
-        // Owner Bypass
+        // --- 1. Access Check & Payment Logic ---
+        $hasAccess = false;
+
         if ($user->id === $this->file->user_id) {
-            return redirect()->route($type === 'download' ? 'file.download' : 'file.preview', ['slug' => $this->slug]);
-        }
+            $hasAccess = true;
+        } else {
+            $accessRecord = AccessedFile::where('user_id', $user->id)->where('file_id', $this->file->id)->first();
+            $cost = 0;
+            $isRenewal = false;
 
-        $accessRecord = AccessedFile::where('user_id', $user->id)->where('file_id', $this->file->id)->first();
-        $cost = 0;
-        $isRenewal = false;
-
-        if (!$accessRecord) {
-            $cost = 5; // Initial cost
-        } elseif ($type === 'download') {
-            if (Carbon::now()->greaterThan($accessRecord->first_accessed_at->addDays(7))) {
-                $cost = 3; // Renewal cost
-                $isRenewal = true;
-            }
-        }
-
-        if ($cost > 0) {
-            if ($user->tokens < $cost) {
-                $this->dispatch('toast', type: 'error', message: 'Insufficient tokens. Cost: ' . $cost);
-                return;
+            if (!$accessRecord) {
+                $cost = 5;
+            } elseif ($type === 'download') {
+                if (Carbon::now()->greaterThan($accessRecord->first_accessed_at->addDays(7))) {
+                    $cost = 3;
+                    $isRenewal = true;
+                }
             }
 
-            $user->decrement('tokens', $cost);
+            if ($cost > 0) {
+                if ($user->tokens < $cost) {
+                    $this->dispatch('toast', type: 'error', message: 'Insufficient tokens. Cost: ' . $cost);
+                    return;
+                }
 
-            TokenTransaction::create([
-                'user_id' => $user->id,
-                'amount' => -$cost,
-                'balance_after' => $user->tokens,
-                'type' => 'debit',
-                'description' => ($isRenewal ? 'Renewed download: ' : 'Unlocked: ') . $this->file->title,
-                'reference_type' => DigitalFile::class,
-                'reference_id' => $this->file->id,
-            ]);
+                $user->decrement('tokens', $cost);
 
-            if ($accessRecord) {
-                $accessRecord->update(['first_accessed_at' => now()]);
-            } else {
-                AccessedFile::create(['user_id' => $user->id, 'file_id' => $this->file->id, 'first_accessed_at' => now()]);
+                TokenTransaction::create([
+                    'user_id' => $user->id,
+                    'amount' => -$cost,
+                    'balance_after' => $user->tokens,
+                    'type' => 'debit',
+                    'description' => ($isRenewal ? 'Renewed download: ' : 'Unlocked: ') . $this->file->title,
+                    'reference_type' => DigitalFile::class,
+                    'reference_id' => $this->file->id,
+                ]);
+
+                if ($accessRecord) {
+                    $accessRecord->update(['first_accessed_at' => now()]);
+                } else {
+                    AccessedFile::create(['user_id' => $user->id, 'file_id' => $this->file->id, 'first_accessed_at' => now()]);
+                }
+
+                $this->dispatch('toast', type: 'success', message: 'Access Granted (-' . $cost . ' tokens)');
             }
-
-            $this->dispatch('toast', type: 'success', message: 'Access Granted (-' . $cost . ' tokens)');
+            $hasAccess = true;
         }
 
-        return redirect()->route($type === 'download' ? 'file.download' : 'file.preview', ['slug' => $this->slug]);
+        if (!$hasAccess)
+            return;
+
+        // --- 2. Action Routing Logic ---
+
+        // Always allow download
+        if ($type === 'download') {
+            return redirect()->route('file.download', ['slug' => $this->slug]);
+        }
+
+        // Preview Logic
+        $extension = strtolower($this->file->file_type);
+
+        // Case A: PDF -> Redirect to specialized PDF Viewer Page
+        if ($extension === 'pdf') {
+            return redirect()->route('file.view-pdf', ['slug' => $this->slug]);
+        }
+
+        // Case B: Image -> Open Reusable Modal
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            $previewUrl = route('file.preview', ['slug' => $this->slug]);
+            // Dispatch event to the reusable component
+            $this->dispatch('open-image-modal', url: $previewUrl, title: $this->file->title);
+            return;
+        }
+
+        // Case C: Office Docs / Others -> No preview
+        $this->dispatch('toast', type: 'info', message: 'Preview not available for this file type. Please download.');
     }
 
     public function setRating($val)
@@ -127,16 +153,14 @@ class PublicFileView extends Component
             'comment' => 'nullable|string|max:500'
         ]);
 
-        // Create Feedback
         Feedback::create([
             'user_id' => Auth::id(),
             'file_id' => $this->file->id,
             'rating' => $this->rating,
             'comment' => $this->comment,
-            'is_approved' => 1 // Depending on your settings
+            'is_approved' => 1
         ]);
 
-        // Update Average Rating on File
         $newAverage = Feedback::where('file_id', $this->file->id)
             ->where('is_approved', 1)
             ->avg('rating');
@@ -170,9 +194,16 @@ class PublicFileView extends Component
         ]);
 
         $this->userHasReported = true;
-        $this->reportCount++; // Optimistic update
+        $this->reportCount++;
         $this->dispatch('toast', type: 'success', message: 'Report submitted for review.');
         $this->reset(['reportReason', 'reportDetails']);
+    }
+
+    // Helper property: Only allow preview button for PDF and Images
+    public function getCanPreviewProperty()
+    {
+        $ext = strtolower($this->file->file_type);
+        return in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp']);
     }
 
     public function render()
@@ -185,6 +216,8 @@ class PublicFileView extends Component
 
         return view('livewire.public-file-view', [
             'reviews' => $reviews
-        ]);
+        ])
+            ->layout('layouts.app')
+            ->section('content');
     }
 }
