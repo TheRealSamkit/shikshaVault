@@ -58,7 +58,6 @@ class PublicFileView extends Component
 
         $user = Auth::user();
 
-        // --- 1. Access Check & Payment Logic ---
         $hasAccess = false;
 
         if ($user->id === $this->file->user_id) {
@@ -108,31 +107,21 @@ class PublicFileView extends Component
 
         if (!$hasAccess)
             return;
-
-        // --- 2. Action Routing Logic ---
-
-        // Always allow download
         if ($type === 'download') {
             return redirect()->route('file.download', ['slug' => $this->slug]);
         }
 
-        // Preview Logic
         $extension = strtolower($this->file->file_type);
 
-        // Case A: PDF -> Redirect to specialized PDF Viewer Page
         if ($extension === 'pdf') {
             return redirect()->route('file.view-pdf', ['slug' => $this->slug]);
         }
-
-        // Case B: Image -> Open Reusable Modal
         if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
             $previewUrl = route('file.preview', ['slug' => $this->slug]);
-            // Dispatch event to the reusable component
             $this->dispatch('open-image-modal', url: $previewUrl, title: $this->file->title);
             return;
         }
 
-        // Case C: Office Docs / Others -> No preview
         $this->dispatch('toast', type: 'info', message: 'Preview not available for this file type. Please download.');
     }
 

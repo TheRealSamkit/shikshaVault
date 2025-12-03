@@ -62,8 +62,6 @@ class FileAccessController extends Controller
     {
         $file = DigitalFile::where('slug', $slug)->firstOrFail();
 
-        // Re-verify access just in case they try to access URL directly
-        // (You can extract this logic to a private method to avoid duplication)
         if (Auth::id() !== $file->user_id) {
             $access = AccessedFile::where('user_id', Auth::id())
                 ->where('file_id', $file->id)

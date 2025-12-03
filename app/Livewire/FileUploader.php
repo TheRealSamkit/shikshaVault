@@ -40,7 +40,6 @@ class FileUploader extends Component
         $this->resource_types = LookupHelper::getResourceTypes();
     }
 
-    // --- Helper: Get File Icon ---
     public function getFileIconProperty()
     {
         if (!$this->file)
@@ -57,7 +56,6 @@ class FileUploader extends Component
         };
     }
 
-    // --- Page Counter (Safe Mode) ---
     private function getPageCount($file)
     {
         $extension = strtolower($file->getClientOriginalExtension());
@@ -89,7 +87,6 @@ class FileUploader extends Component
         return null;
     }
 
-    // --- Search Logic ---
     public function loadInitialInstitutions()
     {
         if (empty($this->institution_query)) {
@@ -172,9 +169,18 @@ class FileUploader extends Component
         $this->reset('file');
     }
 
+
     public function save()
     {
         $this->validate();
+        $contentHash = md5_file($this->file->getRealPath());
+        $duplicate = DigitalFile::where('content_hash', $contentHash)->first();
+
+        if ($duplicate) {
+            $this->addError('file', 'This file has already been uploaded to the platform.');
+            return;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -184,6 +190,7 @@ class FileUploader extends Component
             $storageName = Str::uuid() . '.' . $extension;
             $path = $this->file->storeAs('secure_docs', $storageName, 'local');
             $previewPath = $this->generatePdfPreview($this->file, $storageName);
+
             $fileRecord = DigitalFile::create([
                 'slug' => Str::slug($this->title) . '-' . Str::random(6),
                 'user_id' => $user->id,
@@ -194,20 +201,19 @@ class FileUploader extends Component
                 'file_type' => $extension,
                 'file_size' => $this->file->getSize(),
                 'page_count' => $this->getPageCount($this->file),
-                'content_hash' => md5_file($this->file->getRealPath()),
+                'content_hash' => $contentHash,
                 'institution_id' => $this->institution_id,
                 'academic_field_id' => $this->academic_field_id,
                 'program_stream_id' => $this->program_stream_id,
-                'program_stream_level_id' => $this->program_stream_level_id, // Pivot ID
+                'program_stream_level_id' => $this->program_stream_level_id,
                 'subject_id' => $this->subject_id,
-                'academic_level_id' => $this->program_stream_level_id, // Storing pivot as level ref
+                'academic_level_id' => $this->program_stream_level_id,
                 'resource_type_id' => $this->resource_type_id,
                 'status' => 'active',
                 'visibility' => 'public',
             ]);
 
-            // 3. Reward
-            $rewardAmount = 3; // Fixed reward amount
+            $rewardAmount = 3;
             $user->increment('tokens', $rewardAmount);
             TokenTransaction::create([
                 'user_id' => $user->id,
@@ -221,13 +227,15 @@ class FileUploader extends Component
 
             DB::commit();
 
-            // Reset UI
             $this->reset();
             $this->mount();
             $this->dispatch('upload-success', message: 'File uploaded successfully! 5 Tokens earned.');
 
         } catch (\Exception $e) {
             DB::rollBack();
+            if (isset($path) && Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->delete($path);
+            }
             $this->addError('file', 'Upload failed: ' . $e->getMessage());
         }
     }

@@ -9,6 +9,12 @@ use App\Models\AcademicFields;
 use App\Models\ResourceTypes;
 use App\Models\Subject;
 use Livewire\Attributes\On;
+use App\Models\AccessedFile;
+use App\Models\TokenTransaction;
+use App\Models\Feedback;
+use App\Models\Report;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class FileFeed extends Component
 {
@@ -47,17 +53,107 @@ class FileFeed extends Component
         return $bytes . ' bytes';
     }
 
+    public function processAction($type, $slug)
+    {
+        if (!Auth::check())
+            return redirect()->route('login');
+
+        $user = Auth::user();
+
+        $hasAccess = false;
+        $file = DigitalFile::where('slug', $slug)->firstOrFail();
+        if (!$file) {
+            $this->dispatch('toast', type: 'error', message: 'File not found.');
+            return;
+        }
+        if ($user->id === $file->user_id) {
+            $hasAccess = true;
+        } else {
+            $accessRecord = AccessedFile::where('user_id', $user->id)->where('file_id', $file->id)->first();
+            $cost = 0;
+            $isRenewal = false;
+
+            if (!$accessRecord) {
+                $cost = 5;
+            } elseif ($type === 'download') {
+                if (Carbon::now()->greaterThan($accessRecord->first_accessed_at->addDays(7))) {
+                    $cost = 3;
+                    $isRenewal = true;
+                }
+            }
+
+            if ($cost > 0) {
+                if ($user->tokens < $cost) {
+                    $this->dispatch('toast', type: 'error', message: 'Insufficient tokens. Cost: ' . $cost);
+                    return;
+                }
+
+                $user->decrement('tokens', $cost);
+
+                TokenTransaction::create([
+                    'user_id' => $user->id,
+                    'amount' => -$cost,
+                    'balance_after' => $user->tokens,
+                    'type' => 'debit',
+                    'description' => ($isRenewal ? 'Renewed download: ' : 'Unlocked: ') . $file->title,
+                    'reference_type' => DigitalFile::class,
+                    'reference_id' => $file->id,
+                ]);
+
+                if ($accessRecord) {
+                    $accessRecord->update(['first_accessed_at' => now()]);
+                } else {
+                    AccessedFile::create(['user_id' => $user->id, 'file_id' => $file->id, 'first_accessed_at' => now()]);
+                }
+
+                $this->dispatch('toast', type: 'success', message: 'Access Granted (-' . $cost . ' tokens)');
+            }
+            $hasAccess = true;
+        }
+
+        if (!$hasAccess)
+            return;
+        if ($type === 'download') {
+            return redirect()->route('file.download', ['slug' => $slug]);
+        }
+
+        $extension = strtolower($file->file_type);
+
+        if ($extension === 'pdf') {
+            return redirect()->route('file.view-pdf', ['slug' => $slug]);
+        }
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            $previewUrl = route('file.preview', ['slug' => $slug]);
+            $this->dispatch('open-image-modal', url: $previewUrl, title: $file->title);
+            return;
+        }
+
+        $this->dispatch('toast', type: 'info', message: 'Preview not available for this file type. Please download.');
+    }
+
     public function toggleBookmark($fileId)
     {
         // Auth::user()->bookmarks()->toggle($fileId);
         $this->dispatch('swal:toast', ['icon' => 'success', 'title' => 'Bookmark updated!']);
     }
 
+    public function getFileIcon($extension)
+    {
+        return match (strtolower($extension)) {
+            'pdf' => 'ti-file-type-pdf text-danger',
+            'doc', 'docx' => 'ti-file-type-doc text-primary',
+            'ppt', 'pptx' => 'ti-file-type-ppt text-warning',
+            'xls', 'xlsx' => 'ti-file-type-xls text-success',
+            'jpg', 'jpeg', 'png' => 'ti-photo text-info',
+            default => 'ti-file-text',
+        };
+    }
+
     #[On('searchUpdated')]
     public function updateSearch($query)
     {
         $this->search = $query;
-        $this->resetPage(); // Reset pagination when searching
+        $this->resetPage();
     }
 
     public function render()
