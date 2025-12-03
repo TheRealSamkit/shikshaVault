@@ -52,27 +52,27 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="text-muted text-uppercase font-weight-bold text-xs">Author/Uploader</div>
-                                <div class="font-weight-medium">{{ $file->user->username ?? 'Unknown' }}</div>
+                                <div class="font-weight-medium bg-azure-lt badge">{{ $file->user->username ?? 'Unknown' }}</div>
                             </div>
                             <div class="col-md-6">
-                                <div class="text-muted text-uppercase font-weight-bold text-xs">Publisher/Institution</div>
-                                <div class="font-weight-medium">{{ $file->institution->name ?? 'Not Specified' }}</div>
+                                <div class="text-muted text-uppercase font-weight-bold text-xs">Institution</div>
+                                <div class="font-weight-medium badge bg-primary-lt">{{ $file->institution->name ?? 'Not Specified' }}</div>
                             </div>
                             <div class="col-md-6">
                                 <div class="text-muted text-uppercase font-weight-bold text-xs">Subject</div>
-                                <div class="font-weight-medium">{{ $file->subject->name ?? 'General' }}</div>
+                                <div class="font-weight-medium bg-lime-lt badge">{{ $file->subject->name ?? 'General' }}</div>
                             </div>
                              <div class="col-md-6">
                                 <div class="text-muted text-uppercase font-weight-bold text-xs">Academic Level</div>
-                                <div class="font-weight-medium">{{ $file->academicLevel->name ?? 'N/A' }}</div>
+                                <div class="font-weight-medium bg-teal-lt badge">{{ $file->academicLevel->name ?? 'N/A' }}</div>
                             </div>
                             <div class="col-md-6">
                                 <div class="text-muted text-uppercase font-weight-bold text-xs">Resource Type</div>
-                                <div class="font-weight-medium">{{ $file->resourceType->name ?? 'File' }}</div>
+                                <div class="font-weight-medium bg-green-lt badge">{{ $file->resourceType->name ?? 'File' }}</div>
                             </div>
                              <div class="col-md-6">
                                 <div class="text-muted text-uppercase font-weight-bold text-xs">File Size</div>
-                                <div class="font-weight-medium">{{ round($file->file_size / 1024, 2) }} KB</div>
+                                <div class="font-weight-medium badge bg-warning-lt">{{ round($file->file_size / 1024, 2) }} KB</div>
                             </div>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="d-flex align-items-center gap-4">
                             <!-- Downloads -->
-                            <div class="d-flex align-items-center text-muted" title="Downloads">
+                            <div class="d-flex align-items-center text-blue" title="Downloads">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-1">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />

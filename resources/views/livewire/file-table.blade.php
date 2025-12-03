@@ -18,12 +18,12 @@
                 <a href="{{ route('upload.create') }}" class="btn btn-primary w-75" wire:navigate>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-plus me-0 me-md-1">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M12 5l0 14" />
                         <path d="M5 12l14 0" />
                     </svg>
-                    Upload New
+                    <span class="d-none d-sm-inline">Upload New</span>
                 </a>
             </div>
         </div>
@@ -31,7 +31,7 @@
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-vcenter card-table table-hover">
+                <table class="table table-vcenter card-table table-hover z-1">
                     <thead>
                         <tr class="{{ $loopFlag ? 'd-none' : '' }}">
                             <th>File Details</th>
@@ -157,7 +157,20 @@
                                         <a href="#" class="btn btn-action" data-bs-toggle="dropdown">
                                             <i class="ti ti-dots-vertical"></i>
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
+                                        <div class="dropdown-menu dropdown-menu-end z-3"><button class="dropdown-item"
+                                                @click="navigator.clipboard.writeText('{{ route('file.view', $file->slug) }}');
+                                                        window.showToast('success', 'Link copied to clipboard!','special');">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-copy">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
+                                                    <path
+                                                        d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+                                                </svg>Copy Link
+                                            </button>
                                             <a href="{{ route('file.view', $file->slug)}}" class="dropdown-item"
                                                 wire:navigate> <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -213,8 +226,7 @@
                                             <div class="dropdown-divider"></div>
 
                                             <a class="dropdown-item text-danger" href="#"
-                                                wire:confirm="Are you sure you want to delete this file?"
-                                                wire:click.prevent="destroy({{ $file->id }})">
+                                                wire:click.prevent="$dispatch('confirm-delete', { id: {{ $file->id }} })">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                     stroke-linecap="round" stroke-linejoin="round"
@@ -312,3 +324,36 @@
         </div>
     @endif
 </div>
+
+
+@script
+<script>
+    // Listen for the specific confirm-delete event for THIS table only
+    $wire.on('confirm-delete', (event) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            theme: 'auto',
+            reverseButtons: true,
+            focusConfirm: true,
+            customClass: {
+                popup: 'swal-popup',
+                confirmButton: 'btn btn-danger mx-2 fs-2',
+                cancelButton: 'btn btn-default mx-2 fs-2'
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Dispatch to THIS specific table only
+                Livewire.dispatch("destroy-file", {
+                    id: event.id
+                });
+            }
+        });
+    });
+</script>
+@endscript

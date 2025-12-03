@@ -18,6 +18,11 @@ html {
 	box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
 }
 
+.bg-d-toast {
+	background-color: var(--tblr-bg-surface-inverted) !important;
+	color: var(--tblr-text-inverted) !important;
+}
+
 .modal-backdrop {
 	background-color: #000;
 }

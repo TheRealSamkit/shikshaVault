@@ -60,12 +60,25 @@ const Toast = Swal.mixin({
 	},
 });
 
-window.showToast = (type, message) => {
+window.showToast = (type, message, theme = "default") => {
+	let thisClass;
+	if (theme === "special") {
+		thisClass = {
+			popup: "bg-d-toast",
+			icon: "bg-d-toast",
+		};
+	} else {
+		thisClass = {};
+	}
 	let color = type === "success" ? "#2fb344" : "#d63939";
 	Toast.fire({
 		icon: type,
 		title: message,
 		background: color,
 		color: "#fff",
+		iconColor: `${
+			theme === "special" ? "var(--tblr-text-inverted)" : "#fff"
+		}`,
+		customClass: thisClass,
 	});
 };

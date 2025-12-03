@@ -10,6 +10,8 @@ use App\Models\TokenTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use setasign\Fpdi\Fpdi;
 
 class FileUploader extends Component
 {
@@ -97,6 +99,43 @@ class FileUploader extends Component
         }
     }
 
+    private function generatePdfPreview($file, $uuidName)
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // Only generate for PDFs
+        if ($extension !== 'pdf') {
+            return null;
+        }
+
+        try {
+            $pdf = new Fpdi();
+            // Get the page count of the uploaded file
+            $pageCount = $pdf->setSourceFile($file->getRealPath());
+
+            // Import Page 1
+            $templateId = $pdf->importPage(1);
+            $size = $pdf->getTemplateSize($templateId);
+
+            // Create a new PDF with just that page
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($templateId);
+
+            // Generate filename for preview
+            $previewName = 'preview_' . pathinfo($uuidName, PATHINFO_FILENAME) . '.pdf';
+
+            $pdfContent = $pdf->Output('S');
+
+            Storage::disk('public')->put('previews/' . $previewName, $pdfContent);
+
+            return 'previews/' . $previewName;
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Preview generation failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function updatedInstitutionQuery()
     {
         $this->institution_id = '';
@@ -141,18 +180,17 @@ class FileUploader extends Component
         try {
             $user = Auth::user();
 
-            // 1. Store File
             $extension = $this->file->getClientOriginalExtension();
             $storageName = Str::uuid() . '.' . $extension;
             $path = $this->file->storeAs('secure_docs', $storageName, 'local');
-
-            // 2. Create DB Record
+            $previewPath = $this->generatePdfPreview($this->file, $storageName);
             $fileRecord = DigitalFile::create([
                 'slug' => Str::slug($this->title) . '-' . Str::random(6),
                 'user_id' => $user->id,
                 'title' => $this->title,
                 'description' => $this->description,
                 'file_path' => $path,
+                'preview_path' => $previewPath,
                 'file_type' => $extension,
                 'file_size' => $this->file->getSize(),
                 'page_count' => $this->getPageCount($this->file),

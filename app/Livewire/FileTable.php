@@ -12,6 +12,11 @@ class FileTable extends Component
 {
     use WithPagination;
 
+    protected $listeners = [
+        'destroy-file' => 'destroy',
+        'edit-file' => 'edit',
+    ];
+
     public $search = '';
     public $perPage = 10;
 

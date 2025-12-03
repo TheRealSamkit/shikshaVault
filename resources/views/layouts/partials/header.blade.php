@@ -4,10 +4,13 @@
             data-bs-target="#mobileSidebar">
             <i class="ti ti-menu-2 fs-1"></i></button>
         <h5 class="mb-0 me-auto">
-            @yield('title', 'Dashboard')
+            @yield('title')
         </h5>
+        <div class="col-xl-8 d-none d-md-block mx-auto">
+            @yield('search-bar')
+        </div>
         <div class="d-flex align-items-center mx-2">
-
+            @yield('search-btn')
             <a href="#" class="nav-link btn px-0 shadow-none" onclick="event.preventDefault(); toggleTheme();"
                 title="Toggle Dark Mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
                 <i class="ti ti-sun fs-2 theme-icon-active d-none" id="theme-icon-sun"></i>

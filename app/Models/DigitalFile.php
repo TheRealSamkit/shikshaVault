@@ -19,6 +19,7 @@ class DigitalFile extends Model
         'title',
         'description',
         'file_path',
+        'preview_path',
         'file_type',
         'file_size',
         'content_hash',

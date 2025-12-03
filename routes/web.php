@@ -16,7 +16,7 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/file/pdf-viewer/{slug}', [App\Http\Controllers\FileAccessController::class, 'viewPdfWrapper'])
         ->name('file.view-pdf');
-    Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])
         ->name('dashboard');
 
     Route::get('/file/download/{slug}', [App\Http\Controllers\FileAccessController::class, 'download'])->name('file.download');
