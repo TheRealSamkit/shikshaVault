@@ -192,9 +192,11 @@
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z" />
                                             </svg>Bookmark</a>
-                                        <a href="#" class="dropdown-item"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        <a href="#" class="dropdown-item text-danger"
+                                            wire:click.prevent="$dispatch('open-report-modal', { slug: '{{ $file->slug }}', title: '{{ $file->title }}' })"><svg
+                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
                                                 class="icon icon-tabler icons-tabler-outline icon-tabler-flag">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path
@@ -328,14 +330,15 @@
                 </div>
             @endforelse
             @livewire('image-preview-modal')
+            @livewire('report-modal')
         </div>
 
         <div class="mt-4">
-            {{ $files->links() }}
+            {{ $files->links('livewire.custom-pagination') }}
         </div>
     </div>
 
-    <div wire:ignore.self class="offcanvas offcanvas-bottom bg-body" tabindex="-1" id="offcanvasFilters"
+    <div wire:ignore.self class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasFilters"
         aria-labelledby="offcanvasFiltersLabel"
         style="height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px;">
 
@@ -476,7 +479,7 @@
             </div>
         </div>
 
-        <div class="sticky-bottom bg-body border-top p-3 d-flex gap-2">
+        <div class="sticky-bottom border-top p-3 d-flex gap-2">
             <button class="btn btn-ghost-danger w-50"
                 wire:click="$set('selectedField', []); $set('selectedType', []); $set('selectedSubject', []); $set('selectedFileType', [])">
                 Clear

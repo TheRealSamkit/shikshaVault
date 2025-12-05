@@ -41,7 +41,6 @@ class FileFeed extends Component
         $this->resetPage();
     }
 
-    // Helper for File Size (Keep this in your component)
     public function formatSize($bytes)
     {
         if ($bytes >= 1073741824)
@@ -159,10 +158,23 @@ class FileFeed extends Component
     public function render()
     {
         $query = DigitalFile::query()
-            // Added 'academicLevel' to the with() array
             ->with(['user', 'academicField', 'resourceType', 'subject', 'institution', 'academicLevel'])
             ->where('status', 'active')
             ->where('visibility', 'public');
+
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $query->where('user_id', '!=', $userId);
+            $query->whereDoesntHave('reports', function ($q) use ($userId) {
+                $q->where('reporter_id', $userId);
+            });
+            $query->whereDoesntHave('bookmarks', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
+            $query->whereDoesntHave('accesses', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
+        }
 
         // 1. Search Logic
         if ($this->search) {
@@ -174,7 +186,6 @@ class FileFeed extends Component
             });
         }
 
-        // 2. Filters
         if (!empty($this->selectedField)) {
             $query->whereIn('academic_field_id', $this->selectedField);
         }

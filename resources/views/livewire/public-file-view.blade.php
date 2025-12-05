@@ -281,7 +281,7 @@
                     </div>
                     
                     <div class="mt-3">
-                        {{ $reviews->links() }}
+                        {{ $reviews->links('livewire.custom-pagination') }}
                     </div>
                 </div>
             </div>

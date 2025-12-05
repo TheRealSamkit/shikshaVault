@@ -190,6 +190,11 @@ class FileUploader extends Component
             $storageName = Str::uuid() . '.' . $extension;
             $path = $this->file->storeAs('secure_docs', $storageName, 'local');
             $previewPath = $this->generatePdfPreview($this->file, $storageName);
+            $streamLevelRecord = DB::table('program_stream_levels')
+                ->where('id', $this->program_stream_level_id)
+                ->first();
+
+            $actualAcademicLevelId = $streamLevelRecord ? $streamLevelRecord->academic_level_id : null;
 
             $fileRecord = DigitalFile::create([
                 'slug' => Str::slug($this->title) . '-' . Str::random(6),
@@ -202,12 +207,16 @@ class FileUploader extends Component
                 'file_size' => $this->file->getSize(),
                 'page_count' => $this->getPageCount($this->file),
                 'content_hash' => $contentHash,
+
+
                 'institution_id' => $this->institution_id,
                 'academic_field_id' => $this->academic_field_id,
                 'program_stream_id' => $this->program_stream_id,
                 'program_stream_level_id' => $this->program_stream_level_id,
+
                 'subject_id' => $this->subject_id,
-                'academic_level_id' => $this->program_stream_level_id,
+                'academic_level_id' => $actualAcademicLevelId,
+
                 'resource_type_id' => $this->resource_type_id,
                 'status' => 'active',
                 'visibility' => 'public',

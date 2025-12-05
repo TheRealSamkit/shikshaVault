@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class DigitalFile extends Model
 {
@@ -94,5 +96,17 @@ class DigitalFile extends Model
     public function academicLevel(): BelongsTo
     {
         return $this->belongsTo(AcademicLevels::class, 'academic_level_id');
+    }
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class, 'file_id');
+    }
+    public function accesses(): HasMany
+    {
+        return $this->hasMany(AccessedFile::class, 'file_id');
     }
 }
