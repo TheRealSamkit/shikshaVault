@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light  border-bottom px-4">
+<nav class="navbar navbar-expand-lg navbar-light border-bottom px-4">
     <div class="d-flex align-items-center w-100">
         <button class="btn d-lg-none me-3 p-0 border-0 shadow-none" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#mobileSidebar">

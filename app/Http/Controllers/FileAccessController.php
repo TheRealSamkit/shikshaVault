@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DigitalFile;
 use App\Models\AccessedFile;
-use App\Models\Download; // Make sure you have this model
+use App\Models\Download;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
