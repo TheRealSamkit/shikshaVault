@@ -7,11 +7,11 @@ use Livewire\WithFileUploads;
 use App\Helpers\LookupHelper;
 use App\Models\DigitalFile;
 use App\Models\TokenTransaction;
+use App\Services\FileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\Fpdi;
 
 class FileUploader extends Component
 {
@@ -56,80 +56,12 @@ class FileUploader extends Component
         };
     }
 
-    private function getPageCount($file)
-    {
-        $extension = strtolower($file->getClientOriginalExtension());
-        $path = $file->getRealPath();
-
-        try {
-            if ($extension === 'pdf' && class_exists(\Smalot\PdfParser\Parser::class)) {
-                $parser = new \Smalot\PdfParser\Parser();
-                $pdf = $parser->parseFile($path);
-                return count($pdf->getPages());
-            }
-            // Check if ZipArchive exists to prevent crash
-            elseif (in_array($extension, ['docx', 'pptx']) && class_exists('ZipArchive')) {
-                $zip = new \ZipArchive();
-                if ($zip->open($path) === true) {
-                    $xmlPath = $extension === 'docx' ? 'docProps/app.xml' : 'docProps/app.xml';
-                    if (($index = $zip->locateName($xmlPath)) !== false) {
-                        $xml = $zip->getFromIndex($index);
-                        $xmlObj = simplexml_load_string($xml);
-                        $key = $extension === 'docx' ? 'Pages' : 'Slides';
-                        return (int) $xmlObj->$key;
-                    }
-                    $zip->close();
-                }
-            }
-        } catch (\Exception $e) {
-            return null;
-        }
-        return null;
-    }
-
     public function loadInitialInstitutions()
     {
         if (empty($this->institution_query)) {
             $this->institution_results = \App\Models\Institution::orderBy('name')->limit(10)->get()->toArray();
         } else {
             $this->updatedInstitutionQuery();
-        }
-    }
-
-    private function generatePdfPreview($file, $uuidName)
-    {
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        // Only generate for PDFs
-        if ($extension !== 'pdf') {
-            return null;
-        }
-
-        try {
-            $pdf = new Fpdi();
-            // Get the page count of the uploaded file
-            $pageCount = $pdf->setSourceFile($file->getRealPath());
-
-            // Import Page 1
-            $templateId = $pdf->importPage(1);
-            $size = $pdf->getTemplateSize($templateId);
-
-            // Create a new PDF with just that page
-            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-            $pdf->useTemplate($templateId);
-
-            // Generate filename for preview
-            $previewName = 'preview_' . pathinfo($uuidName, PATHINFO_FILENAME) . '.pdf';
-
-            $pdfContent = $pdf->Output('S');
-
-            Storage::disk('public')->put('previews/' . $previewName, $pdfContent);
-
-            return 'previews/' . $previewName;
-
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Preview generation failed: ' . $e->getMessage());
-            return null;
         }
     }
 
@@ -170,81 +102,27 @@ class FileUploader extends Component
     }
 
 
-    public function save()
+    public function save(FileService $fileService)
     {
         $this->validate();
-        $contentHash = md5_file($this->file->getRealPath());
-        $duplicate = DigitalFile::where('content_hash', $contentHash)->first();
-
-        if ($duplicate) {
-            $this->addError('file', 'This file has already been uploaded to the platform.');
-            return;
-        }
-
-        DB::beginTransaction();
 
         try {
-            $user = Auth::user();
-
-            $extension = $this->file->getClientOriginalExtension();
-            $storageName = Str::uuid() . '.' . $extension;
-            $path = $this->file->storeAs('secure_docs', $storageName, 'local');
-            $previewPath = $this->generatePdfPreview($this->file, $storageName);
-            $streamLevelRecord = DB::table('program_stream_levels')
-                ->where('id', $this->program_stream_level_id)
-                ->first();
-
-            $actualAcademicLevelId = $streamLevelRecord ? $streamLevelRecord->academic_level_id : null;
-
-            $fileRecord = DigitalFile::create([
-                'slug' => Str::slug($this->title) . '-' . Str::random(6),
-                'user_id' => $user->id,
+            $fileService->upload(Auth::user(), [
                 'title' => $this->title,
                 'description' => $this->description,
-                'file_path' => $path,
-                'preview_path' => $previewPath,
-                'file_type' => $extension,
-                'file_size' => $this->file->getSize(),
-                'page_count' => $this->getPageCount($this->file),
-                'content_hash' => $contentHash,
-
-
-                'institution_id' => $this->institution_id,
                 'academic_field_id' => $this->academic_field_id,
                 'program_stream_id' => $this->program_stream_id,
                 'program_stream_level_id' => $this->program_stream_level_id,
-
                 'subject_id' => $this->subject_id,
-                'academic_level_id' => $actualAcademicLevelId,
-
                 'resource_type_id' => $this->resource_type_id,
-                'status' => 'active',
-                'visibility' => 'public',
-            ]);
-
-            $rewardAmount = 3;
-            $user->increment('tokens', $rewardAmount);
-            TokenTransaction::create([
-                'user_id' => $user->id,
-                'amount' => $rewardAmount,
-                'balance_after' => $user->tokens,
-                'type' => 'credit',
-                'description' => 'Upload Reward',
-                'reference_type' => DigitalFile::class,
-                'reference_id' => $fileRecord->id,
-            ]);
-
-            DB::commit();
+                'institution_id' => $this->institution_id,
+            ], $this->file);
 
             $this->reset();
             $this->mount();
             $this->dispatch('upload-success', message: 'File uploaded successfully! 5 Tokens earned.');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            if (isset($path) && Storage::disk('local')->exists($path)) {
-                Storage::disk('local')->delete($path);
-            }
             $this->addError('file', 'Upload failed: ' . $e->getMessage());
         }
     }

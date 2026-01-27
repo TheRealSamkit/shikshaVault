@@ -6,6 +6,7 @@ use Livewire\Attributes\On;
 use App\Models\DigitalFile;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Report;
+use App\Services\ReviewService;
 
 class ReportModal extends Component
 {
@@ -32,7 +33,7 @@ class ReportModal extends Component
         $this->reportDetails = '';
     }
 
-    public function submitReport()
+    public function submitReport(ReviewService $reviewService)
     {
         if (!Auth::check())
             return redirect()->route('login');
@@ -53,14 +54,11 @@ class ReportModal extends Component
             'reportDetails' => 'nullable|string|max:1000'
         ]);
 
-        Report::create([
-            'reporter_id' => Auth::id(),
-            'reportable_type' => DigitalFile::class,
-            'reportable_id' => $file->id,
+        $reviewService->submitReport(Auth::user(), $file, [
             'reason' => $this->reportReason,
             'details' => $this->reportDetails,
-            'status' => 'pending'
         ]);
+
         $this->dispatch('toast', type: 'success', message: 'Thanks for your report. We will review it shortly.');
         $this->reset(['reportReason', 'reportDetails']);
         $this->close();

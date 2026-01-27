@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\DigitalFile;
+use App\Services\FileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -33,30 +34,25 @@ class FileTable extends Component
     }
 
     // 1. Toggle Visibility (Public/Private)
-    public function toggleVisibility($id)
+    public function toggleVisibility($id, FileService $fileService)
     {
-        $file = DigitalFile::where('user_id', Auth::id())->find($id);
-
-        if ($file) {
-            $newStatus = $file->visibility === 'public' ? 'private' : 'public';
-            $file->update(['visibility' => $newStatus]);
-
+        try {
+            $newStatus = $fileService->toggleVisibility(Auth::user(), $id);
             $msg = $newStatus === 'public' ? 'File is now Public' : 'File is now Private';
             $this->dispatch('toast', type: 'success', message: $msg);
+        } catch (\Exception $e) {
+            $this->dispatch('toast', type: 'error', message: $e->getMessage());
         }
     }
 
     // 2. Delete File
-    public function destroy($id)
+    public function destroy($id, FileService $fileService)
     {
-        $file = DigitalFile::where('user_id', Auth::id())->find($id);
-
-        if ($file) {
-            // Optional: Delete physical file here if needed
-            // Storage::delete($file->file_path); 
-
-            $file->delete(); // Soft delete based on migration
+        try {
+            $fileService->delete(Auth::user(), $id);
             $this->dispatch('toast', type: 'success', message: 'File deleted successfully');
+        } catch (\Exception $e) {
+            $this->dispatch('toast', type: 'error', message: $e->getMessage());
         }
     }
 
@@ -74,23 +70,23 @@ class FileTable extends Component
     }
 
     // 4. Save Changes
-    public function update()
+    public function update(FileService $fileService)
     {
         $this->validate([
             'editTitle' => 'required|min:5|max:255',
             'editDescription' => 'required|min:10',
         ]);
 
-        $file = DigitalFile::where('user_id', Auth::id())->find($this->fileId);
-
-        if ($file) {
-            $file->update([
+        try {
+            $fileService->update(Auth::user(), $this->fileId, [
                 'title' => $this->editTitle,
                 'description' => $this->editDescription,
             ]);
 
             $this->showModal = false;
             $this->dispatch('toast', type: 'success', message: 'File details updated successfully');
+        } catch (\Exception $e) {
+            $this->dispatch('toast', type: 'error', message: $e->getMessage());
         }
     }
 

@@ -9,6 +9,8 @@ use App\Models\AccessedFile;
 use App\Models\TokenTransaction;
 use App\Models\Feedback;
 use App\Models\Report;
+use App\Services\FileService;
+use App\Services\ReviewService;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -51,62 +53,22 @@ class PublicFileView extends Component
         }
     }
 
-    public function processAction($type)
+    public function processAction($type, FileService $fileService)
     {
         if (!Auth::check())
             return redirect()->route('login');
 
-        $user = Auth::user();
+        $result = $fileService->processAccess(Auth::user(), $this->file, $type);
 
-        $hasAccess = false;
-
-        if ($user->id === $this->file->user_id) {
-            $hasAccess = true;
-        } else {
-            $accessRecord = AccessedFile::where('user_id', $user->id)->where('file_id', $this->file->id)->first();
-            $cost = 0;
-            $isRenewal = false;
-
-            if (!$accessRecord) {
-                $cost = 5;
-            } elseif ($type === 'download') {
-                if (Carbon::now()->greaterThan($accessRecord->first_accessed_at->addDays(7))) {
-                    $cost = 3;
-                    $isRenewal = true;
-                }
-            }
-
-            if ($cost > 0) {
-                if ($user->tokens < $cost) {
-                    $this->dispatch('toast', type: 'error', message: 'Insufficient tokens. Cost: ' . $cost);
-                    return;
-                }
-
-                $user->decrement('tokens', $cost);
-
-                TokenTransaction::create([
-                    'user_id' => $user->id,
-                    'amount' => -$cost,
-                    'balance_after' => $user->tokens,
-                    'type' => 'debit',
-                    'description' => ($isRenewal ? 'Renewed download: ' : 'Unlocked: ') . $this->file->title,
-                    'reference_type' => DigitalFile::class,
-                    'reference_id' => $this->file->id,
-                ]);
-
-                if ($accessRecord) {
-                    $accessRecord->update(['first_accessed_at' => now()]);
-                } else {
-                    AccessedFile::create(['user_id' => $user->id, 'file_id' => $this->file->id, 'first_accessed_at' => now()]);
-                }
-
-                $this->dispatch('toast', type: 'success', message: 'Access Granted (-' . $cost . ' tokens)');
-            }
-            $hasAccess = true;
+        if (!$result['success']) {
+            $this->dispatch('toast', type: 'error', message: $result['message']);
+            return;
         }
 
-        if (!$hasAccess)
-            return;
+        if (strpos($result['message'], 'Access Granted') !== false) {
+            $this->dispatch('toast', type: 'success', message: $result['message']);
+        }
+
         if ($type === 'download') {
             return redirect()->route('file.download', ['slug' => $this->slug]);
         }
@@ -130,7 +92,7 @@ class PublicFileView extends Component
         $this->rating = $val;
     }
 
-    public function submitFeedback()
+    public function submitFeedback(ReviewService $reviewService)
     {
         if (!Auth::check())
             return redirect()->route('login');
@@ -142,26 +104,17 @@ class PublicFileView extends Component
             'comment' => 'nullable|string|max:500'
         ]);
 
-        Feedback::create([
-            'user_id' => Auth::id(),
-            'file_id' => $this->file->id,
+        $reviewService->submitFeedback(Auth::user(), $this->file, [
             'rating' => $this->rating,
             'comment' => $this->comment,
-            'is_approved' => 1
         ]);
-
-        $newAverage = Feedback::where('file_id', $this->file->id)
-            ->where('is_approved', 1)
-            ->avg('rating');
-
-        $this->file->update(['average_rating' => $newAverage]);
 
         $this->userHasRated = true;
         $this->dispatch('toast', type: 'success', message: 'Review submitted successfully!');
         $this->reset(['comment']);
     }
 
-    public function submitReport()
+    public function submitReport(ReviewService $reviewService)
     {
         if (!Auth::check())
             return redirect()->route('login');
@@ -173,13 +126,9 @@ class PublicFileView extends Component
             'reportDetails' => 'nullable|string|max:1000'
         ]);
 
-        Report::create([
-            'reporter_id' => Auth::id(),
-            'reportable_type' => DigitalFile::class,
-            'reportable_id' => $this->file->id,
+        $reviewService->submitReport(Auth::user(), $this->file, [
             'reason' => $this->reportReason,
             'details' => $this->reportDetails,
-            'status' => 'pending'
         ]);
 
         $this->userHasReported = true;

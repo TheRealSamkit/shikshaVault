@@ -100,21 +100,16 @@ class DataTable extends Component
         }
     }
 
-    public function save()
+    public function save(\App\Services\CrudService $crudService)
     {
         $this->validate($this->getValidationRules());
 
         $modelClass = $this->getModelClass();
 
         if ($this->editMode && $this->itemId) {
-            // Update existing
-            $item = $modelClass::find($this->itemId);
-            if ($item) {
-                $item->update($this->formData);
-            }
+            $crudService->update($modelClass, $this->itemId, $this->formData);
         } else {
-            // Create new
-            $modelClass::create($this->formData);
+            $crudService->create($modelClass, $this->formData);
         }
 
         $this->showModal = false;
@@ -123,13 +118,11 @@ class DataTable extends Component
 
         session()->flash('message', $this->editMode ? 'Item updated successfully!' : 'Item created successfully!');
     }
-    public function destroy($id)
+    public function destroy($id, \App\Services\CrudService $crudService)
     {
         $modelClass = $this->getModelClass();
-        $record = $modelClass::find($id);
 
-        if ($record) {
-            $record->delete();
+        if ($crudService->delete($modelClass, $id)) {
             session()->flash('message', 'Item deleted successfully!');
         }
 

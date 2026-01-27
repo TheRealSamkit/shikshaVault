@@ -305,7 +305,6 @@
             },
         }).then((result) => {
             if (result.isConfirmed) {
-                // Dispatch to THIS specific table only
                 Livewire.dispatch("destroy-{{ Str::kebab($title) }}", {
                     id: event.id
                 });

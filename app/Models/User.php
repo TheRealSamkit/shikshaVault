@@ -50,4 +50,28 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Check if user has sufficient tokens.
+     */
+    public function hasTokens(int $amount): bool
+    {
+        return $this->tokens >= $amount;
+    }
+
+    /**
+     * Debit tokens from user.
+     */
+    public function debitTokens(int $amount)
+    {
+        $this->decrement('tokens', $amount);
+    }
+
+    /**
+     * Credit tokens to user.
+     */
+    public function creditTokens(int $amount)
+    {
+        $this->increment('tokens', $amount);
+    }
 }
