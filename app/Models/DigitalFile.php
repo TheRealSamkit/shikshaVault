@@ -109,4 +109,14 @@ class DigitalFile extends Model
     {
         return $this->hasMany(AccessedFile::class, 'file_id');
     }
+
+    public function collectionItems(): HasMany
+    {
+        return $this->hasMany(CollectionItem::class, 'digital_file_id');
+    }
+
+    public function collections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(FileCollection::class, 'collection_items', 'digital_file_id', 'file_collection_id');
+    }
 }

@@ -9,21 +9,35 @@ use App\Models\TokenTransaction;
 
 class ProfileController extends Controller
 {
-    public function show()
+    public function show($id = null)
     {
-        $user = Auth::user();
+        // If no ID is provided, show current user's profile
+        if (!$id) {
+            $user = Auth::user();
+        } else {
+            $user = \App\Models\User::findOrFail($id);
+        }
+        
+        $isOwner = Auth::check() && Auth::id() === $user->id;
 
-        // 1. Get My Uploads
+        // 1. Get Uploads (Public)
         $myFiles = DigitalFile::where('user_id', $user->id)
             ->latest()
-            ->get();
+            ->paginate(12);
 
-        // 2. Get My Token History (Earnings & Spendings)
-        $transactions = TokenTransaction::where('user_id', $user->id)
-            ->latest()
-            ->limit(20) // Just show last 20 for prototype
-            ->get();
+        // 2. Private Data (Owner Only)
+        $transactions = collect();
+        $bookmarks = collect();
 
-        return view('profile.show', compact('user', 'myFiles', 'transactions'));
+        if ($isOwner) {
+            $transactions = TokenTransaction::where('user_id', $user->id)
+                ->latest()
+                ->limit(20)
+                ->get();
+            
+            $bookmarks = $user->bookmarkedFiles()->with('user')->latest()->get();
+        }
+
+        return view('profile.show', compact('user', 'myFiles', 'transactions', 'bookmarks', 'isOwner'));
     }
 }

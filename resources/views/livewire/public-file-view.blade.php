@@ -17,7 +17,10 @@
                         </h2>
                         
                         <!-- Copy Link -->
-                        <div class="col-auto ms-auto d-print-none" x-data="{ copied: false }">
+                        <div class="col-auto ms-auto d-print-none d-flex gap-1" x-data="{ copied: false }">
+                            @auth
+                                @livewire('bookmark-button', ['fileId' => $file->id], key('bkbtn-'.$file->id))
+                            @endauth
                             <button @click="
                                 navigator.clipboard.writeText('{{ route('file.view', $file->slug) }}');
                                 copied = true;
@@ -290,6 +293,7 @@
 
     <!-- Reusable Image Modal Component -->
     @livewire('image-preview-modal')
+    @livewire('bookmark-manager')
 
 </div>
 

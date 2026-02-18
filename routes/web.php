@@ -11,6 +11,11 @@ Route::get('/resource/{slug}', function () {
     return view('file.view');
 })->name('file.view');
 
+// Public shared collection — no auth required
+Route::get('/collection/{id}', function ($id) {
+    return view('collection', ['id' => $id]);
+})->name('collection.public');
+
 Auth::routes(['verify' => true]);
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -27,10 +32,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-files', function () {
         return view('uploads');
     })->name('uploads');
+
+    Route::get('/bookmarks', function () {
+        return view('bookmarks');
+    })->name('bookmarks');
+
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/user/{id}', [App\Http\Controllers\ProfileController::class, 'show'])->name('user.show');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])
+        ->name('analytics');
+
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');

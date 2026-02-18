@@ -184,8 +184,9 @@
                                         </svg>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#" class="dropdown-item" wire:click="toggleBookmark({{ $file->id }})"><svg
-                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        <a href="#" class="dropdown-item"
+                                            wire:click.prevent="toggleBookmark({{ $file->id }})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round"
                                                 class="icon icon-tabler icons-tabler-outline icon-tabler-bookmark">
@@ -331,6 +332,7 @@
             @endforelse
             @livewire('image-preview-modal')
             @livewire('report-modal')
+            @livewire('bookmark-manager')
         </div>
 
         <div class="mt-4">

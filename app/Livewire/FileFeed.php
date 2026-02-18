@@ -132,8 +132,25 @@ class FileFeed extends Component
 
     public function toggleBookmark($fileId)
     {
-        // Auth::user()->bookmarks()->toggle($fileId);
-        $this->dispatch('swal:toast', ['icon' => 'success', 'title' => 'Bookmark updated!']);
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $service = app(\App\Services\BookmarkService::class);
+        $isCurrentlyBookmarked = $service->isBookmarked(Auth::user(), $fileId);
+
+        if ($isCurrentlyBookmarked) {
+            // Un-bookmark: remove bookmark + all collection entries
+            $service->toggleBookmark(Auth::user(), $fileId);
+            $this->dispatch('bookmark-toggled', fileId: $fileId, bookmarked: false);
+            $this->dispatch('toast', type: 'info', message: 'Bookmark removed.');
+        } else {
+            // Bookmark: save and open collection picker
+            $service->toggleBookmark(Auth::user(), $fileId);
+            $this->dispatch('bookmark-toggled', fileId: $fileId, bookmarked: true);
+            $this->dispatch('open-bookmark-manager', fileId: $fileId);
+            $this->dispatch('toast', type: 'success', message: 'Bookmarked! Choose a collection or close to keep in General.');
+        }
     }
 
     public function getFileIcon($extension)

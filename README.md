@@ -1,59 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# shikshaVault 📚
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+shikshaVault is a comprehensive digital resource repository built with Laravel, designed to manage and share academic materials seamlessly. It features a robust file management system, integrated PDF viewer, and a structured curriculum management interface.
 
-## About Laravel
+## ✨ Key Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Resource Management**: Upload, categorize, and manage digital files (PDFs, etc.).
+- **Curriculum Structure**: Organize resources by Institutional levels, Program Streams, and Subjects.
+- **Integrated PDF Viewer**: View documents directly in the browser with a secure wrapper.
+- **Bookmarks & Favorites**: Save important resources for quick access.
+- **Admin Dashboard**: Comprehensive tools for managing users, files, and the academic hierarchy.
+- **User Profiles**: Track uploads, downloads, and personal activity.
+- **Search & Filter**: Easily find resources based on academic levels and fields.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠️ Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: [Laravel 12.x](https://laravel.com)
+- **Frontend**: [Livewire 3.x](https://livewire.laravel.com), [Bootstrap 5](https://getbootstrap.com), [Tailwind CSS 4](https://tailwindcss.com)
+- **UI Components**: [Tabler](https://tabler.io), [SweetAlert2](https://sweetalert2.github.io), [Dropzone.js](https://www.dropzone.dev)
+- **PDF Processing**: [FPDF](http://www.fpdf.org), [FPDI](https://www.setasign.com/products/fpdi/about/), [PDFParser](https://pdfparser.org)
+- **Database**: MySQL / SQLite (configurable)
 
-## Learning Laravel
+## 🚀 Getting Started
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP ^8.2
+- Composer
+- Node.js & NPM
+- MySQL or Laragon/XAMPP environment
 
-## Laravel Sponsors
+### Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/TheRealSamkit/shikshaVault.git
+   cd shikshaVault
+   ```
 
-### Premium Partners
+2. **Install dependencies**:
+   ```bash
+   composer install
+   npm install
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+3. **Environment Setup**:
+   ```bash
+   cp .env.example .env
+   # Update your DB_DATABASE, DB_USERNAME, and DB_PASSWORD in .env
+   ```
 
-## Contributing
+4. **Generate App Key**:
+   ```bash
+   php artisan key:generate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Database Migration**:
+   ```bash
+   php artisan migrate
+   ```
 
-## Code of Conduct
+6. **Build Assets**:
+   ```bash
+   npm run build
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7. **Run the Application**:
+   ```bash
+   php artisan serve
+   ```
+   Visit `http://localhost:8000` in your browser.
 
-## Security Vulnerabilities
+## 📁 Project Structure
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- `app/Models`: Contains the core logic for Academic levels, Programs, Subjects, and Files.
+- `app/Http/Controllers`: Handles file uploads, access control, and user profiles.
+- `resources/views`: Blade templates for the frontend UI.
+- `routes/web.php`: Defines public, authenticated, and admin-only routes.
 
-## License
+## 📄 License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+

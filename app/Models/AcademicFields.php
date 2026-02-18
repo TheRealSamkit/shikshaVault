@@ -15,4 +15,9 @@ class AcademicFields extends Model
     {
         return $this->hasMany(ProgramStreams::class, 'academic_field_id');
     }
+
+    public function digitalFiles()
+    {
+        return $this->hasMany(DigitalFile::class, 'academic_field_id');
+    }
 }
